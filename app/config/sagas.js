@@ -1,12 +1,12 @@
 import { takeEvery, put, call, select } from 'redux-saga/effects';
-// import axios from 'axios';
+import axios from 'axios';
 import auth from '@react-native-firebase/auth';
 
-import API from './API';
+// import API from './API';
 import { OTP_CONFIRM, AUTH_FAIL, AUTH_COMPLETE } from '../actions/authActions';
 
 const userRoute = (token, payload) =>
-  API({
+  axios({
     method: 'POST',
     url: '/patient/test',
     headers: { AuthToken: token },

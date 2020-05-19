@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, StatusBar } from 'react-native';
+import { View, StyleSheet, StatusBar, SafeAreaView } from 'react-native';
 import { Title, Button } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 
@@ -22,7 +22,7 @@ const Register = (props) => {
   };
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         marginTop: 16,
@@ -33,7 +33,7 @@ const Register = (props) => {
       <Button mode="contained" onPress={handleSignOut}>
         Sign Out
       </Button>
-    </View>
+    </SafeAreaView>
   );
 };
 
