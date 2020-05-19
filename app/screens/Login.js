@@ -8,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  SafeAreaView,
 } from 'react-native';
 import { Title, Button, TextInput } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
@@ -60,7 +61,7 @@ const Login = (props) => {
   const { handleSubmit, submitting } = props;
 
   return (
-    <View
+    <SafeAreaView
       style={{
         flex: 1,
         marginTop: 16,
@@ -107,7 +108,7 @@ const Login = (props) => {
           </Text>
         </View>
       </TouchableWithoutFeedback>
-    </View>
+    </SafeAreaView>
   );
 };
 
