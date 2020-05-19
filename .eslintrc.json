@@ -1,0 +1,32 @@
+{
+  "extends": ["airbnb", "prettier", "@react-native-community"],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": ["react-native", "prettier"],
+  "env": {
+    "react-native/react-native": true
+  },
+  "rules": {
+    "global-require": "off",
+    "react/jsx-filename-extension": [
+      "error",
+      { "extensions": [".js", ".jsx"] }
+    ],
+    "react/jsx-props-no-spreading": "off",
+    "react/jsx-closing-bracket-location": [
+      1,
+      { "selfClosing": "line-aligned", "nonEmpty": "after-props" }
+    ],
+    "react/require-default-props": "off",
+    "react-native/no-unused-styles": 2,
+    "react-native/no-inline-styles": 0,
+    "prettier/prettier": "off",
+    "no-alert": "off",
+    "no-underscore-dangle": "off",
+    "no-console": "off"
+  }
+}
