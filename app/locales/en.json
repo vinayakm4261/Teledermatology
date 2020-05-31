@@ -1,9 +1,17 @@
 {
+  "app": {
+    "name": "Teledermatology",
+    "tagLine": "Skin doctors right on your phone."
+  },
   "login": {
-    "title": "Teledermatology",
-    "tagLine": "Skin doctors right on your phone.",
-    "phone": "Your Phone Number",
-    "phoneLabel": "Phone Number",
-    "buttonText": "Continue"
+    "phoneNumberLabel": "Your Phone Number",
+    "phoneNumberPlaceholder": "Phone Number",
+    "continueButtonText": "Continue"
+  },
+  "otp": {
+    "otpLabel": "Enter OTP",
+    "otpPlaceholder": "OTP",
+    "loginButtonText": "Login",
+    "loginError": "Could not log you in. Try again."
   }
 }

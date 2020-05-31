@@ -4,5 +4,14 @@ import Tagline from './Typography/Tagline';
 import Headline from './Typography/Headline';
 import Button from './Button';
 import TextInput from './TextInput';
+import ReduxCompatTextInput from './ReduxCompatTextInput';
 
-export { ScreenWrapper, Title, Tagline, Headline, Button, TextInput };
+export {
+  ScreenWrapper,
+  Title,
+  Tagline,
+  Headline,
+  Button,
+  TextInput,
+  ReduxCompatTextInput,
+};

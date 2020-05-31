@@ -1,17 +1,15 @@
 import React from 'react';
 import { View, StatusBar, SafeAreaView, ScrollView } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import useScreenDimensions from '../../hooks/useScreenDimensions';
 
 const ScreenWrapper = ({ children }) => {
   const theme = useTheme();
-  const { height } = useScreenDimensions();
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flexGrow: 1 }}>
       <ScrollView
         contentContainerStyle={{
-          height: height - StatusBar.currentHeight,
+          flexGrow: 1,
         }}>
         <StatusBar
           backgroundColor={theme.colors.background}

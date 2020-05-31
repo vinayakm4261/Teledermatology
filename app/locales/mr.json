@@ -1,9 +1,17 @@
 {
+  "app": {
+    "name": "टेलीडर्माटोलोजी",
+    "tagLine": "स्किन डॉक्टर्स आपल्या फोन वर"
+  },
   "login": {
-    "title": "टेलीडर्माटोलोजी ",
-    "tagLine": "स्किन डॉक्टर्स आपल्या फोन वर",
-    "phone": "आपला फोन नंबर",
-    "phoneLabel": "फोन नंबर",
-    "buttonText": "पुढे पहा"
+    "phoneNumberLabel": "आपला फोन नंबर",
+    "phoneNumberPlaceholder": "फोन नंबर",
+    "continueButtonText": "पुढे पहा"
+  },
+  "otp": {
+    "otpLabel": "तुमचा ओटीपी",
+    "otpPlaceholder": "ओटीपी",
+    "loginButtonText": "लॉग इन करा",
+    "loginError": "लॉग इन झाले नाही. कृपया पुन्हा प्रयत्न करा."
   }
 }
