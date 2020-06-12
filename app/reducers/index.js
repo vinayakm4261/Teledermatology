@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
-import { reducer as formReducer } from 'redux-form';
 
 import authReducer from './authReducer';
+import localeReducer from './localeReducer';
 
 export default combineReducers({
-  form: formReducer,
   authReducer,
+  localeReducer,
 });

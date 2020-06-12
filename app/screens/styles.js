@@ -1,11 +1,21 @@
 import { StyleSheet } from 'react-native';
 
+const loadingStyles = () => () =>
+  StyleSheet.create({
+    container: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+  });
+
 const loginStyles = ({ width }) => () =>
   StyleSheet.create({
     container: {
       justifyContent: 'space-between',
       flexGrow: 1,
-      padding: 8,
+      padding: 16,
+      paddingTop: 8,
     },
     illustrationContainer: {
       paddingVertical: 12,
@@ -13,9 +23,16 @@ const loginStyles = ({ width }) => () =>
     illustration: {
       width: width - 32,
     },
-    inputGroup: {
-      marginBottom: 16,
+  });
+
+const registerStyles = () => () =>
+  StyleSheet.create({
+    container: {
+      justifyContent: 'space-between',
+      flexGrow: 1,
+      padding: 16,
+      paddingTop: 8,
     },
   });
 
-export { loginStyles };
+export { loadingStyles, loginStyles, registerStyles };

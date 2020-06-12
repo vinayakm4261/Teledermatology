@@ -11,7 +11,6 @@
   "otp": {
     "otpLabel": "तुमचा ओटीपी",
     "otpPlaceholder": "ओटीपी",
-    "loginButtonText": "लॉग इन करा",
-    "loginError": "लॉग इन झाले नाही. कृपया पुन्हा प्रयत्न करा."
+    "loginButtonText": "लॉग इन करा"
   }
 }

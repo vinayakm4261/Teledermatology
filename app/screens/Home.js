@@ -5,7 +5,7 @@ import auth from '@react-native-firebase/auth';
 
 const styles = StyleSheet.create({});
 
-const Home = (props) => {
+const HomeScreen = (props) => {
   useEffect(() =>
     auth().onAuthStateChanged((user) => {
       if (user) {
@@ -39,4 +39,4 @@ const Home = (props) => {
   );
 };
 
-export default Home;
+export default HomeScreen;
