@@ -7,10 +7,18 @@ import { connect } from 'react-redux';
 import LoginScreen from './Login';
 import LoginOTPScreen from './LoginOTP';
 import RegisterScreen from './Register';
-import HomeScreen from './Home';
+import HomeScreen from './HomeChat';
+import ChatScreen from './Chat';
 import LoadingScreen from './Loading';
 
 const Stack = createStackNavigator();
+
+const ChatNav = () => (
+  <Stack.Navigator headerMode="none">
+    <Stack.Screen name="Home" component={HomeScreen} />
+    <Stack.Screen name="Chat" component={ChatScreen} />
+  </Stack.Navigator>
+);
 
 const Navigator = ({
   appLoaded = false,
@@ -28,7 +36,7 @@ const Navigator = ({
     ) : !userRegistered ? (
       <RegisterScreen />
     ) : (
-      <HomeScreen />
+      <ChatNav />
     )}
   </NavigationContainer>
 );
