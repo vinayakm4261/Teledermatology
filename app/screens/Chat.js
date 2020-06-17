@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import { connect } from 'react-redux';
 
@@ -17,13 +17,17 @@ const ChatScreen = ({ navigation, auth }) => {
 
   return (
     <ScreenWrapper>
-      <Title>Chats</Title>
-      <View style={{ marginVertical: 16 }}>
-        <TextInput placeholder="Enter message" />
+      <View style={{ flex: 1, justifyContent: 'flex-end', margin: 16 }}>
+        <View style={{ flex: 1, alignSelf: 'flex-start' }}>
+          <Title>Chats</Title>
+        </View>
+        <View style={{ marginVertical: 16 }}>
+          <TextInput placeholder="Enter message" />
+        </View>
+        <Button mode="contained" onPress={handleSignOut}>
+          Send
+        </Button>
       </View>
-      <Button mode="contained" onPress={handleSignOut}>
-        Sign Out
-      </Button>
     </ScreenWrapper>
   );
 };

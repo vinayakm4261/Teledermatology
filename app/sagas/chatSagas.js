@@ -1,4 +1,5 @@
-import { take, put, select, call } from 'redux-saga/effects';
+import { take, put, select, call, fork } from 'redux-saga/effects';
+import { eventChannel } from 'redux-saga';
 import {
   resolvePromiseAction,
   rejectPromiseAction,
@@ -8,7 +9,7 @@ import database from '@react-native-firebase/database';
 import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
 
-import { SET_DB } from '../actions/chatActions';
+import { SET_DB, MESSAGES_FETCHED, NEW_CHAT } from '../actions/chatActions';
 
 const databaseErrorMap = defaultDict(
   {
@@ -28,14 +29,39 @@ const checkChatNode = (reference, path) =>
       error: { type: databaseErrorMap[err.code] },
     }));
 
-const createChatNode = (reference, path) =>
-  reference
-    .child(path)
+const createChatNode = (
+  reference,
+  path,
+  author,
+  receiver,
+  content = 'Chat Init',
+) => {
+  const createRef = reference.child(path).push();
+
+  return createRef
     .set({
-      initial: 'chatInit',
+      author,
+      receiver,
+      content,
+      timeStamp: Date.now(),
     })
-    .then(() => ({ success: true, error: null }))
-    .catch((err) => ({ success: null, error: databaseErrorMap[err.code] }));
+    .then(() => ({ key: createRef.key, error: null }))
+    .catch((err) => ({ key: null, error: databaseErrorMap[err.code] }));
+};
+
+const createChatChannel = (reference, path) => {
+  const listener = eventChannel((emit) => {
+    reference
+      .child(path)
+      .on('child_added', (snapshot) =>
+        emit({ [snapshot.key]: snapshot.val() }),
+      );
+
+    return () => reference.child(path).off(listener);
+  });
+
+  return listener;
+};
 
 function* setDatabaseSaga(action) {
   try {
@@ -54,38 +80,68 @@ function* setDatabaseSaga(action) {
 
 function* initChatSaga(action) {
   try {
-    const id = action.payload;
+    const appointmentID = action.payload;
 
-    const ref = yield select((state) => state.chatReducer.database);
+    const { ref, userID, doctorID } = yield select((state) => ({
+      ref: state.chatReducer.database,
+      userID: state.authReducer.userData._id,
+      doctorID: state.chatReducer.doctorID,
+    }));
 
-    const { snapshot, error } = yield call(checkChatNode, ref, id);
+    const { snapshot, error } = yield call(checkChatNode, ref, appointmentID);
 
     if (error) {
-      console.log('Error: ', error);
       yield call(rejectPromiseAction, action, error);
     } else {
       if (snapshot.val()) {
-        // TODO: Dispatch messages fetched action
-        console.log('Node is present', snapshot.val());
-      } else {
-        console.log('Have to create node');
+        yield put({
+          type: MESSAGES_FETCHED,
+          payload: { chats: snapshot.val() },
+        });
 
-        const { success, error2 } = yield call(createChatNode, ref, id);
+        yield call(resolvePromiseAction, action, {});
+
+        const chatChannel = yield call(createChatChannel, ref, appointmentID);
+
+        while (true) {
+          const newMessage = yield take(chatChannel);
+          console.log('New Message is here existing:', newMessage);
+        }
+      } else {
+        const { key, error2 } = yield call(
+          createChatNode,
+          ref,
+          appointmentID,
+          userID,
+          doctorID,
+        );
 
         if (error2) {
-          console.log('Error2: ', error2);
-        } else if (success) {
-          // TODO: Dispatch new chat action
-          console.log('Chat node created');
+          yield call(rejectPromiseAction, action, error2);
+        } else if (key) {
+          yield put({ type: NEW_CHAT, payload: { key } });
+
+          yield call(resolvePromiseAction, action, {});
+
+          const chatChannel = yield call(createChatChannel, ref, appointmentID);
+
+          while (true) {
+            const newMessage = yield take(chatChannel);
+            console.log('New Message is here new:', newMessage);
+          }
         }
       }
     }
   } catch (err) {
-    console.log('Catch error', err);
+    console.log(err);
     yield call(rejectPromiseAction, action, {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
 }
 
-export { setDatabaseSaga, initChatSaga };
+function* initChatWatcher(action) {
+  yield fork(initChatSaga, action);
+}
+
+export { setDatabaseSaga, initChatWatcher };

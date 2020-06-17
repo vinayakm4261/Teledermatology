@@ -3,8 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { connect } from 'react-redux';
 
-import database from '@react-native-firebase/database';
-
 import { ScreenWrapper, Button, Title } from '../components';
 import { setDatabaseAction, initChatAction } from '../actions/chatActions';
 
@@ -12,7 +10,8 @@ const styles = StyleSheet.create({});
 
 const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
   const theme = useTheme();
-  const [chatID, setChatID] = useState('');
+  const [chatID, setChatID] = useState('0d6de1984cd81bd295f4b3f9');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     setDatabase('/chats').catch((err) => console.log(err));
@@ -23,8 +22,12 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
   ]);
 
   const handleInitChat = useCallback(() => {
-    initChat(chatID).catch((err) => console.log(err));
-  }, [initChat, chatID]);
+    setSubmitting(true);
+    initChat(chatID)
+      .then(() => navigation.navigate('Chat'))
+      .catch((err) => console.log(err))
+      .finally(() => setSubmitting(false));
+  }, [initChat, chatID, navigation]);
 
   const handleSignOut = () => {
     auth
@@ -36,7 +39,7 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
   return (
     <ScreenWrapper>
       <View style={{ margin: 16 }}>
-        <Title>Home</Title>
+        <Title>HomeChat</Title>
         <View style={{ marginVertical: 16 }}>
           <TextInput
             style={{ height: 56 }}
@@ -48,6 +51,7 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
         <Button
           style={{ marginBottom: 16 }}
           mode="contained"
+          loading={submitting}
           onPress={handleInitChat}>
           Next
         </Button>

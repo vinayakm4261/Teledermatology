@@ -1,4 +1,4 @@
-import { takeEvery } from 'redux-saga/effects';
+import { takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   authLoadedSaga,
@@ -8,7 +8,7 @@ import {
   otpSaga,
   registerSaga,
 } from './authSagas';
-import { setDatabaseSaga, initChatSaga } from './chatSagas';
+import { setDatabaseSaga, initChatWatcher } from './chatSagas';
 
 export default function* rootSaga() {
   yield takeEvery('SET_AUTH.TRIGGER', authLoadedSaga);
@@ -18,5 +18,5 @@ export default function* rootSaga() {
   yield takeEvery('OTP_CONFIRM.TRIGGER', otpSaga);
   yield takeEvery('REGISTER_USER.TRIGGER', registerSaga);
   yield takeEvery('SET_DB.TRIGGER', setDatabaseSaga);
-  yield takeEvery('INIT_CHAT.TRIGGER', initChatSaga);
+  yield takeLatest('INIT_CHAT.TRIGGER', initChatWatcher);
 }
