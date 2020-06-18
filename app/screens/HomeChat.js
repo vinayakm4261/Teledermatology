@@ -23,7 +23,10 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
 
   const handleInitChat = useCallback(() => {
     setSubmitting(true);
-    initChat(chatID)
+    initChat({
+      appointmentID: chatID,
+      receiverID: 'dA9WPHdt3QetWffUrRjFXnEfMUR2',
+    })
       .then(() => navigation.navigate('Chat'))
       .catch((err) => console.log(err))
       .finally(() => setSubmitting(false));
@@ -53,6 +56,12 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
           mode="contained"
           loading={submitting}
           onPress={handleInitChat}>
+          Start Chat
+        </Button>
+        <Button
+          style={{ marginBottom: 16 }}
+          mode="contained"
+          onPress={() => navigation.navigate('Chat')}>
           Next
         </Button>
         <Button
