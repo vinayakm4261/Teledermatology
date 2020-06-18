@@ -8,7 +8,11 @@ import {
   otpSaga,
   registerSaga,
 } from './authSagas';
-import { setDatabaseSaga, initChatWatcher } from './chatSagas';
+import {
+  setDatabaseSaga,
+  initChatWatcher,
+  sendMessageWatcher,
+} from './chatSagas';
 
 export default function* rootSaga() {
   yield takeEvery('SET_AUTH.TRIGGER', authLoadedSaga);
@@ -18,5 +22,6 @@ export default function* rootSaga() {
   yield takeEvery('OTP_CONFIRM.TRIGGER', otpSaga);
   yield takeEvery('REGISTER_USER.TRIGGER', registerSaga);
   yield takeEvery('SET_DB.TRIGGER', setDatabaseSaga);
-  yield takeLatest('INIT_CHAT.TRIGGER', initChatWatcher);
+  yield takeEvery('INIT_CHAT.TRIGGER', initChatWatcher);
+  yield takeEvery('SEND_MESSAGE.TRIGGER', sendMessageWatcher);
 }

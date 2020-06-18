@@ -1,8 +1,14 @@
-import { SET_DB, MESSAGES_FETCHED, NEW_CHAT } from '../actions/chatActions';
+import {
+  SET_DB,
+  MESSAGES_FETCHED,
+  NEW_CHAT,
+  MESSAGE_RECEIVED,
+  MESSAGE_SENT,
+} from '../actions/chatActions';
 
 const initialState = {
-  appointmentID: '0d6de1984cd81bd295f4b3f9',
-  doctorID: 'dA9WPHdt3QetWffUrRjFXnEfMUR2',
+  appointmentID: '',
+  receiverID: '',
   database: {},
   chats: {},
 };
@@ -18,9 +24,7 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         chats: {
-          [action.payload.key]: {
-            initial: 'chatInit',
-          },
+          ...action.payload,
         },
       };
     case MESSAGES_FETCHED:
@@ -30,6 +34,30 @@ const reducer = (state = initialState, action) => {
           ...action.payload.chats,
         },
       };
+    case MESSAGE_SENT:
+      if (Object.keys(state.chats).includes(Object.keys(action.payload))) {
+        return state;
+      } else {
+        return {
+          ...state,
+          chats: {
+            ...state.chats,
+            ...action.payload,
+          },
+        };
+      }
+    case MESSAGE_RECEIVED:
+      if (Object.keys(state.chats).includes(Object.keys(action.payload))) {
+        return state;
+      } else {
+        return {
+          ...state,
+          chats: {
+            ...state.chats,
+            ...action.payload,
+          },
+        };
+      }
     default:
       return state;
   }
