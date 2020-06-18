@@ -9,25 +9,31 @@ import { sendMessageAction, exitChatAction } from '../actions/chatActions';
 const styles = StyleSheet.create({
   senderContainer: {
     alignSelf: 'flex-end',
-    backgroundColor: '#DEDEDE',
-    height: 40,
+    backgroundColor: '#EDEDED',
+    minHeight: 40,
     maxWidth: 238,
-    flexWrap: 'wrap',
     padding: 10,
     borderRadius: 8,
+    marginVertical: 2,
+    flexShrink: 1,
   },
   receiverContainer: {
     alignSelf: 'flex-start',
     backgroundColor: '#E5E3FF',
-    height: 40,
+    minHeight: 40,
     maxWidth: 238,
-    flexWrap: 'wrap',
     padding: 10,
     borderRadius: 8,
+    marginVertical: 2,
+    flexShrink: 1,
+  },
+  chatText: {
+    fontFamily: 'NotoSans-Regular',
+    fontSize: 14,
+    flexShrink: 1,
   },
   inputContainer: {
     height: 52,
-    elevation: 5,
     flexDirection: 'row',
     marginTop: 16,
     alignItems: 'center',
@@ -79,26 +85,28 @@ const ChatScreen = ({
       <View style={{ flex: 1, justifyContent: 'flex-end', margin: 16 }}>
         {messages ? (
           <View>
-            {Object.keys(messages).map((msg) => {
-              if (messages[msg].author === userID) {
-                return (
-                  <View style={styles.senderContainer}>
-                    <Text>{messages[msg].content}</Text>
-                  </View>
-                );
-              } else {
-                return (
-                  <View style={styles.receiverContainer}>
-                    <Text>{messages[msg].content}</Text>
-                  </View>
-                );
-              }
-            })}
+            {Object.entries(messages)
+              .sort((a, b) => a[1].timeStamp - b[1].timeStamp)
+              .map((msg) => {
+                if (msg[1].author === userID) {
+                  return (
+                    <View style={styles.senderContainer} key={msg[0]}>
+                      <Text style={styles.chatText}>{msg[1].content}</Text>
+                    </View>
+                  );
+                } else {
+                  return (
+                    <View style={styles.receiverContainer} key={msg[0]}>
+                      <Text style={styles.chatText}>{msg[1].content}</Text>
+                    </View>
+                  );
+                }
+              })}
           </View>
         ) : null}
         <View style={styles.inputContainer}>
           <TextInput
-            placeholder="Enter message"
+            placeholder="Message"
             style={{ flex: 1, marginRight: 16, height: 52 }}
             value={message}
             dense
@@ -106,11 +114,10 @@ const ChatScreen = ({
           />
           <FAB
             onPress={handleSendMessage}
-            disabled={!!sending}
+            disabled={!!sending || !message}
             loading={sending}
             icon="send"
             small
-            dark
             style={styles.sendButton}
           />
         </View>
