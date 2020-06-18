@@ -23,13 +23,17 @@ const reducer = (state = initialState, action) => {
     case NEW_CHAT:
       return {
         ...state,
+        appointmentID: action.payload.appointmentID,
+        receiverID: action.payload.receiverID,
         chats: {
-          ...action.payload,
+          ...action.payload.chat,
         },
       };
     case MESSAGES_FETCHED:
       return {
         ...state,
+        appointmentID: action.payload.appointmentID,
+        receiverID: action.payload.receiverID,
         chats: {
           ...action.payload.chats,
         },
@@ -58,6 +62,13 @@ const reducer = (state = initialState, action) => {
           },
         };
       }
+    case 'EXIT_CHAT.TRIGGER':
+      return {
+        ...state,
+        appointmentID: '',
+        receiverID: '',
+        chats: {},
+      };
     default:
       return state;
   }

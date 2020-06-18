@@ -89,12 +89,11 @@ function* setDatabaseSaga(action) {
 
 function* initChatSaga(action) {
   try {
-    const appointmentID = action.payload;
+    const { appointmentID, receiverID } = action.payload;
 
-    const { ref, userID, receiverID } = yield select((state) => ({
+    const { ref, userID } = yield select((state) => ({
       ref: state.chatReducer.database,
       userID: state.authReducer.userData._id,
-      receiverID: state.chatReducer.receiverID,
     }));
 
     const { snapshot, error } = yield call(checkChatNode, ref, appointmentID);
@@ -105,7 +104,7 @@ function* initChatSaga(action) {
       if (snapshot.val()) {
         yield put({
           type: MESSAGES_FETCHED,
-          payload: { chats: snapshot.val() },
+          payload: { chats: snapshot.val(), receiverID, appointmentID },
         });
 
         yield call(resolvePromiseAction, action, {});
@@ -133,7 +132,10 @@ function* initChatSaga(action) {
         if (error2) {
           yield call(rejectPromiseAction, action, error2);
         } else if (message) {
-          yield put({ type: NEW_CHAT, payload: { ...message } });
+          yield put({
+            type: NEW_CHAT,
+            payload: { chat: { ...message }, receiverID, appointmentID },
+          });
 
           yield call(resolvePromiseAction, action, {});
 
@@ -180,20 +182,27 @@ function* sendMessageSaga(action) {
       }),
     );
 
-    const { message, error } = yield call(
-      createChatNode,
-      ref,
-      appointmentID,
-      userID,
-      receiverID,
-      content,
-    );
+    if (Object.keys(chats).length === 0) {
+      console.log('Initialise chat channel');
+      yield call(rejectPromiseAction, action, {
+        type: errorTypes.COMMON.INTERNAL_ERROR,
+      });
+    } else {
+      const { message, error } = yield call(
+        createChatNode,
+        ref,
+        appointmentID,
+        userID,
+        receiverID,
+        content,
+      );
 
-    if (error) {
-      yield call(rejectPromiseAction, action, error);
-    } else if (message) {
-      yield put({ type: MESSAGE_SENT, payload: { ...message } });
-      yield call(resolvePromiseAction, action, {});
+      if (error) {
+        yield call(rejectPromiseAction, action, error);
+      } else if (message) {
+        yield put({ type: MESSAGE_SENT, payload: { ...message } });
+        yield call(resolvePromiseAction, action, {});
+      }
     }
   } catch (err) {
     console.log(err);
