@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
-import { TextInput, useTheme, FAB, IconButton } from 'react-native-paper';
+import { View, StyleSheet, Text, FlatList } from 'react-native';
+import { TextInput, FAB, IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
 
 import { ScreenWrapper, Title } from '../components';
@@ -51,8 +50,6 @@ const ChatScreen = ({
   userID,
   messages,
 }) => {
-  const theme = useTheme();
-
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
 
@@ -74,10 +71,7 @@ const ChatScreen = ({
   return (
     <ScreenWrapper scrolling={false}>
       <View style={{ alignItems: 'center', flexDirection: 'row', height: 56 }}>
-        <IconButton
-          icon="arrow-left"
-          color={theme.colors.accent}
-          onPress={handleExitChat}>
+        <IconButton icon="arrow-left" onPress={handleExitChat}>
           Close
         </IconButton>
         <Title>Chats</Title>

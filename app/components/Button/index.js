@@ -1,7 +1,9 @@
 import React from 'react';
-import { Button } from 'react-native-paper';
+import { Button, useTheme } from 'react-native-paper';
 
 export default function ({ children, ...props }) {
+  const theme = useTheme();
+
   return (
     <Button
       {...props}
@@ -10,7 +12,7 @@ export default function ({ children, ...props }) {
       }}
       labelStyle={{
         fontSize: 16,
-        fontWeight: '700',
+        ...theme.fonts.medium,
       }}>
       {children}
     </Button>

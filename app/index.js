@@ -24,11 +24,11 @@ const fontConfig = {
     },
     light: {
       fontFamily: 'NotoSans-Regular',
-      fontWeight: '400',
+      fontWeight: 'normal',
     },
     thin: {
       fontFamily: 'NotoSans-Regular',
-      fontWeight: '300',
+      fontWeight: 'normal',
     },
   },
 };

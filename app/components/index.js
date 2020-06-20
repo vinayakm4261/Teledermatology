@@ -2,6 +2,7 @@ import ScreenWrapper from './ScreenWrapper';
 import Title from './Typography/Title';
 import Tagline from './Typography/Tagline';
 import Headline from './Typography/Headline';
+import Subheading from './Typography/Subheading';
 import Label from './Typography/Label';
 import Button from './Button';
 import TextInput from './TextInput';
@@ -14,6 +15,7 @@ export {
   Title,
   Tagline,
   Headline,
+  Subheading,
   Label,
   Button,
   TextInput,

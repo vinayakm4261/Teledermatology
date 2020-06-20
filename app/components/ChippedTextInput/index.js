@@ -13,7 +13,7 @@ export default function ({
   style = {},
   ...props
 }) {
-  const { colors } = useTheme();
+  const theme = useTheme();
   const [{ value }, { touched, error }, { setValue, setTouched }] = useField(
     name,
   );
@@ -78,9 +78,17 @@ export default function ({
           <NativeTextInput
             value={currentText}
             onChangeText={setCurrentText}
-            numberOfLines={1}
-            style={{ flexGrow: 1, margin: 0, height: 48, padding: 12 }}
-            selectionColor={colors.primary}
+            placeholderTextColor={theme.colors.placeholder}
+            style={{
+              flexGrow: 1,
+              margin: 0,
+              height: 48,
+              padding: 12,
+              fontSize: 16,
+              ...theme.fonts.regular,
+            }}
+            selectionColor={theme.colors.primary}
+            underlineColorAndroid="transparent"
             editable={!disabled}
             {...props}
           />
@@ -97,7 +105,7 @@ export default function ({
         </View>
       </>
     ),
-    [value, colors, disabled, props, removeValue, currentText, handleAddPress],
+    [value, theme, disabled, props, removeValue, currentText, handleAddPress],
   );
 
   return (
