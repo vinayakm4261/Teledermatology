@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, StatusBar, SafeAreaView } from 'react-native';
-import { Title, Button } from 'react-native-paper';
+import { Title, Button, IconButton } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
+import Audio from '../components/AudioRecording';
+import AudioRecorder from '../components/AudioRecording';
 
 const styles = StyleSheet.create({});
 
@@ -35,6 +37,15 @@ const Home = (props) => {
       <Button mode="contained" onPress={handleSignOut}>
         Sign Out
       </Button>
+      <IconButton
+        icon="camera"
+        color="black"
+        size={32}
+        onPress={() => {
+          props.navigation.navigate('Camera');
+        }}
+      />
+      <AudioRecorder />
     </SafeAreaView>
   );
 };

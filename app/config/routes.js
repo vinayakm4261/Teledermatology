@@ -6,6 +6,7 @@ import Login from '../screens/Login';
 import LoginOTP from '../screens/LoginOTP';
 import Register from '../screens/Register';
 import Home from '../screens/Home';
+import Camera from '../screens/Camera';
 
 const Stack = createStackNavigator();
 
@@ -17,6 +18,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="LoginOTP" component={LoginOTP} />
       <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="Camera" component={Camera} />
       <Stack.Screen name="Home" component={Home} />
     </Stack.Navigator>
   );
