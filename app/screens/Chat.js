@@ -1,9 +1,10 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import { FlatList } from 'react-native-gesture-handler';
 import { TextInput, useTheme, FAB, IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
 
-import { ScreenWrapper, Button, Title } from '../components';
+import { ScreenWrapper, Title } from '../components';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
 
 const styles = StyleSheet.create({
@@ -35,7 +36,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     height: 52,
     flexDirection: 'row',
-    marginTop: 16,
     alignItems: 'center',
   },
   sendButton: {
@@ -72,7 +72,7 @@ const ChatScreen = ({
   }, [exitChat, navigation]);
 
   return (
-    <ScreenWrapper>
+    <ScreenWrapper scrolling={false}>
       <View style={{ alignItems: 'center', flexDirection: 'row', height: 56 }}>
         <IconButton
           icon="arrow-left"
@@ -82,45 +82,45 @@ const ChatScreen = ({
         </IconButton>
         <Title>Chats</Title>
       </View>
-      <View style={{ flex: 1, justifyContent: 'flex-end', margin: 16 }}>
-        {messages ? (
-          <View>
-            {Object.entries(messages)
-              .sort((a, b) => a[1].timeStamp - b[1].timeStamp)
-              .map((msg) => {
-                if (msg[1].author === userID) {
-                  return (
-                    <View style={styles.senderContainer} key={msg[0]}>
-                      <Text style={styles.chatText}>{msg[1].content}</Text>
-                    </View>
-                  );
-                } else {
-                  return (
-                    <View style={styles.receiverContainer} key={msg[0]}>
-                      <Text style={styles.chatText}>{msg[1].content}</Text>
-                    </View>
-                  );
-                }
-              })}
-          </View>
-        ) : null}
-        <View style={styles.inputContainer}>
-          <TextInput
-            placeholder="Message"
-            style={{ flex: 1, marginRight: 16, height: 52 }}
-            value={message}
-            dense
-            onChangeText={setMessage}
-          />
-          <FAB
-            onPress={handleSendMessage}
-            disabled={!!sending || !message}
-            loading={sending}
-            icon="send"
-            small
-            style={styles.sendButton}
-          />
-        </View>
+      <FlatList
+        inverted={true}
+        data={Object.entries(messages).sort(
+          (a, b) => b[1].timeStamp - a[1].timeStamp,
+        )}
+        keyExtractor={([id, _]) => id}
+        renderItem={({ item: [id, msg] }) => {
+          return msg.author === userID ? (
+            <View style={styles.senderContainer} key={id}>
+              <Text style={styles.chatText}>{msg.content}</Text>
+            </View>
+          ) : (
+            <View style={styles.receiverContainer} key={id}>
+              <Text style={styles.chatText}>{msg.content}</Text>
+            </View>
+          );
+        }}
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 12,
+          paddingVertical: 4,
+        }}
+      />
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder="Message"
+          style={{ flex: 1, marginRight: 16, height: 52 }}
+          value={message}
+          dense
+          onChangeText={setMessage}
+        />
+        <FAB
+          onPress={handleSendMessage}
+          disabled={!!sending || !message}
+          loading={sending}
+          icon="send"
+          small
+          style={styles.sendButton}
+        />
       </View>
     </ScreenWrapper>
   );
