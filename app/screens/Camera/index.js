@@ -1,5 +1,11 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { StyleSheet, View, Text, useWindowDimensions } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  useWindowDimensions,
+  PermissionsAndroid,
+} from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { IconButton } from 'react-native-paper';
 
@@ -26,11 +32,36 @@ const Camera = ({ navigation }) => {
     }
   }, [windowHeight]);
 
+  useEffect(() => {
+    requestAudioPermission();
+  }, []);
+
+  const requestAudioPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+        {
+          title: 'Please provide permission to record audio',
+          message: 'Teledermatology would like to record audio',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the audio');
+      } else {
+        console.log('audio permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
   const takePicture = async () => {
     if (camera) {
       const options = { quality: 0.5, base64: true };
       const data = await camera.current.takePictureAsync(options);
-      console.log(data);
+      console.log(data.uri);
     }
   };
 

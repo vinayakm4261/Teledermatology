@@ -1,11 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, StatusBar, SafeAreaView } from 'react-native';
+import { StatusBar, SafeAreaView } from 'react-native';
 import { Title, Button, IconButton } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
-import Audio from '../components/AudioRecording';
 import AudioRecorder from '../components/AudioRecording';
-
-const styles = StyleSheet.create({});
 
 const Home = (props) => {
   useEffect(() =>
