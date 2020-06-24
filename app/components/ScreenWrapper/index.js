@@ -8,6 +8,7 @@ const ScreenWrapper = ({ children }) => {
   return (
     <SafeAreaView style={{ flexGrow: 1 }}>
       <ScrollView
+        keyboardShouldPersistTaps="handled"
         contentContainerStyle={{
           flexGrow: 1,
         }}>
@@ -20,9 +21,6 @@ const ScreenWrapper = ({ children }) => {
           style={{
             backgroundColor: theme.colors.background,
             flexGrow: 1,
-            paddingTop: 0,
-            paddingHorizontal: 8,
-            paddingBottom: 8,
           }}>
           {children}
         </View>

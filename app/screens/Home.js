@@ -4,7 +4,7 @@ import { Title, Button, IconButton } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
 import AudioRecorder from '../components/AudioRecording';
 
-const Home = (props) => {
+const HomeScreen = (props) => {
   useEffect(() =>
     auth().onAuthStateChanged((user) => {
       if (user) {
@@ -47,4 +47,4 @@ const Home = (props) => {
   );
 };
 
-export default Home;
+export default HomeScreen;
