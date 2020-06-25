@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar, SafeAreaView } from 'react-native';
 import { Title, Button, IconButton } from 'react-native-paper';
 import auth from '@react-native-firebase/auth';
-import AudioRecorder from '../components/AudioRecording';
+import useAudioRecorder from '../hooks/useAudioRecorder';
 
 const HomeScreen = (props) => {
   useEffect(() =>
@@ -21,6 +21,10 @@ const HomeScreen = (props) => {
       .then(() => props.navigation.navigate('Login'))
       .catch((err) => alert(err));
   };
+
+  const { startRecording, endRecording, isRecording } = useAudioRecorder(
+    'dummy.mp3',
+  );
 
   return (
     <SafeAreaView
@@ -42,7 +46,13 @@ const HomeScreen = (props) => {
           props.navigation.navigate('Camera');
         }}
       />
-      <AudioRecorder />
+      <IconButton
+        icon={isRecording ? 'square' : 'microphone'}
+        size={32}
+        onPress={() => {
+          isRecording ? endRecording() : startRecording();
+        }}
+      />
     </SafeAreaView>
   );
 };
