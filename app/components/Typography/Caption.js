@@ -7,14 +7,11 @@ export default function ({ children, style }) {
   return (
     <Caption
       style={{
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 0,
-        marginTop: 8,
-        marginHorizontal: 8,
-        color: theme.colors.greyLight,
-        letterSpacing: -0.5,
-        ...theme.fonts.medium,
+        fontSize: 16,
+        lineHeight: 24,
+        letterSpacing: 0,
+        color: theme.colors.grey,
+        ...theme.fonts.regular,
         ...style,
       }}>
       {children}

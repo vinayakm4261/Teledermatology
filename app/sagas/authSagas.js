@@ -1,4 +1,5 @@
-import { put, call, select } from 'redux-saga/effects';
+import { eventChannel } from 'redux-saga';
+import { put, call, select, take } from 'redux-saga/effects';
 import {
   resolvePromiseAction,
   rejectPromiseAction,
@@ -12,20 +13,11 @@ import {
   AUTH_COMPLETE,
   LOAD_COMPLETE,
 } from '../actions/authActions';
+import { APP_LOADED } from '../actions/localeActions';
 
 import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
-import { APP_LOADED } from '../actions/localeActions';
-
-const responseCodeErrorMap = defaultDict(
-  {
-    404: errorTypes.COMMON.INTERNAL_ERROR,
-    500: errorTypes.COMMON.SERVER_ERROR,
-    422: errorTypes.COMMON.INVALID_REQUEST,
-    400: errorTypes.COMMON.INTERNAL_ERROR,
-  },
-  errorTypes.COMMON.NETWORK_ERROR,
-);
+import requestAPI from '../helpers/requestAPI';
 
 const firebaseErrorMap = defaultDict(
   {
@@ -39,22 +31,6 @@ const firebaseErrorMap = defaultDict(
   errorTypes.COMMON.INTERNAL_ERROR,
 );
 
-const requestAPI = (route, request, payload) =>
-  API({
-    url: route,
-    method: request,
-    data: payload,
-  })
-    .then((response) => ({ response: response.data, error: null }))
-    .catch((err) => {
-      const { status = {} } = err.response || {};
-
-      return {
-        response: null,
-        error: { type: responseCodeErrorMap[status] },
-      };
-    });
-
 const retrieveToken = (authProvider) =>
   authProvider.currentUser.getIdToken(true);
 
@@ -63,7 +39,10 @@ const phoneAuth = (authProvider, phoneNumber) =>
     .signInWithPhoneNumber(phoneNumber)
     .then((confirmation) => ({ confirmation, error: null }))
     .catch((err) => {
-      return { confirm: null, error: { type: firebaseErrorMap[err.code] } };
+      return {
+        confirm: null,
+        error: { type: firebaseErrorMap[err.code], err },
+      };
     });
 
 const otpAuth = (authProvider, otp) =>
@@ -74,9 +53,21 @@ const otpAuth = (authProvider, otp) =>
       return {
         phoneNumber: null,
         uid: null,
-        otpError: { type: firebaseErrorMap[err.code] },
+        otpError: { type: firebaseErrorMap[err.code], err },
       };
     });
+
+const authChannelCreator = (authProvider) => {
+  const listener = eventChannel((emit) => {
+    const unsubscribe = authProvider.onAuthStateChanged((user) =>
+      emit({ user }),
+    );
+
+    return unsubscribe;
+  });
+
+  return listener;
+};
 
 function* authLoadedSaga(action) {
   try {
@@ -127,7 +118,7 @@ function* loadUserDataSaga(action) {
 
       const { response, error } = yield call(
         requestAPI,
-        '/patient/login',
+        '/common/login',
         'POST',
         { _id: uid },
       );
@@ -140,7 +131,7 @@ function* loadUserDataSaga(action) {
         } else {
           yield put({
             type: LOAD_COMPLETE,
-            payload: { user: { ...response.user } },
+            payload: { user: response.user, isDoctor: response.isDoctor },
           });
           yield call(resolvePromiseAction, action, {});
         }
@@ -187,20 +178,18 @@ function* otpSaga(action) {
       auth: state.authReducer.auth,
     }));
 
-    const { phoneNumber, uid, otpError } = yield call(
-      otpAuth,
-      confirmation,
-      otp,
-    );
+    const authChannel = yield call(authChannelCreator, auth);
 
-    if (otpError) {
-      yield call(rejectPromiseAction, action, otpError);
-    } else if (phoneNumber && uid) {
+    const authAuto = yield take(authChannel);
+
+    if (authAuto.user) {
       API.defaults.headers.common.authtoken = yield call(retrieveToken, auth);
+
+      const { uid, phoneNumber } = auth.currentUser;
 
       const { response, error } = yield call(
         requestAPI,
-        '/patient/login',
+        '/common/login',
         'POST',
         { _id: uid },
       );
@@ -217,7 +206,7 @@ function* otpSaga(action) {
         } else {
           yield put({
             type: AUTH_COMPLETE,
-            payload: { user: { ...response.user } },
+            payload: { user: response.user, isDoctor: response.isDoctor },
           });
           yield call(resolvePromiseAction, action, {
             new: false,
@@ -225,6 +214,50 @@ function* otpSaga(action) {
           });
         }
       }
+
+      authChannel.close();
+    } else {
+      const { phoneNumber, uid, otpError } = yield call(
+        otpAuth,
+        confirmation,
+        otp,
+      );
+
+      if (otpError) {
+        yield call(rejectPromiseAction, action, otpError);
+      } else if (phoneNumber && uid) {
+        API.defaults.headers.common.authtoken = yield call(retrieveToken, auth);
+
+        const { response, error } = yield call(
+          requestAPI,
+          '/common/login',
+          'POST',
+          { _id: uid },
+        );
+
+        if (error) {
+          yield call(rejectPromiseAction, action, error);
+        } else if (response) {
+          if (response.new) {
+            yield put({ type: NEW_REGISTER, payload: { uid, phoneNumber } });
+            yield call(resolvePromiseAction, action, {
+              ...response,
+              navigate: 'RegisterScreen',
+            });
+          } else {
+            yield put({
+              type: AUTH_COMPLETE,
+              payload: { user: response.user, isDoctor: response.isDoctor },
+            });
+            yield call(resolvePromiseAction, action, {
+              new: false,
+              navigate: 'HomeScreen',
+            });
+          }
+        }
+      }
+
+      authChannel.close();
     }
   } catch (err) {
     console.log(err);

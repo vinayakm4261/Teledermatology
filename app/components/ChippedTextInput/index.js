@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { View, TextInput as NativeTextInput } from 'react-native';
 import { useField } from 'formik';
-import { TextInput, Chip, useTheme, Button } from 'react-native-paper';
+import { TextInput, useTheme, Button } from 'react-native-paper';
 
 import Label from '../Typography/Label';
+import Chip from '../Chip';
 
 export default function ({
   name,
@@ -13,7 +14,7 @@ export default function ({
   style = {},
   ...props
 }) {
-  const { colors } = useTheme();
+  const theme = useTheme();
   const [{ value }, { touched, error }, { setValue, setTouched }] = useField(
     name,
   );
@@ -60,15 +61,7 @@ export default function ({
               paddingBottom: 0,
             }}>
             {value.map((chip, idx) => (
-              <Chip
-                key={chip}
-                disabled={disabled}
-                style={{
-                  margin: 2,
-                  borderRadius: 6,
-                  backgroundColor: '#ffffff',
-                }}
-                onClose={removeValue(idx)}>
+              <Chip key={chip} disabled={disabled} onClose={removeValue(idx)}>
                 {chip}
               </Chip>
             ))}
@@ -78,9 +71,17 @@ export default function ({
           <NativeTextInput
             value={currentText}
             onChangeText={setCurrentText}
-            numberOfLines={1}
-            style={{ flexGrow: 1, margin: 0, height: 48, padding: 12 }}
-            selectionColor={colors.primary}
+            placeholderTextColor={theme.colors.placeholder}
+            style={{
+              flexGrow: 1,
+              margin: 0,
+              height: 48,
+              padding: 12,
+              fontSize: 16,
+              ...theme.fonts.regular,
+            }}
+            selectionColor={theme.colors.primary}
+            underlineColorAndroid="transparent"
             editable={!disabled}
             {...props}
           />
@@ -97,7 +98,7 @@ export default function ({
         </View>
       </>
     ),
-    [value, colors, disabled, props, removeValue, currentText, handleAddPress],
+    [value, theme, disabled, props, removeValue, currentText, handleAddPress],
   );
 
   return (

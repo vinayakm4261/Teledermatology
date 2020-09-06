@@ -1,15 +1,19 @@
 import React from 'react';
-import {Headline} from 'react-native-paper';
+import { Headline, useTheme } from 'react-native-paper';
 
-export default function ({children}) {
+export default function ({ children, style }) {
+  const theme = useTheme();
+
   return (
     <Headline
       style={{
         fontSize: 28,
-        lineHeight: 32,
+        lineHeight: 36,
         marginVertical: 8,
-        fontWeight: '700',
-        color: '#696969',
+        letterSpacing: -0.5,
+        color: theme.colors.greyDark,
+        ...theme.fonts.medium,
+        ...style,
       }}>
       {children}
     </Headline>

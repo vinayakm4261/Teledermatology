@@ -13,6 +13,7 @@ const initialState = {
   userLoggedIn: false,
   userRegistered: false,
   userDataLoaded: false,
+  isDoctor: false,
   authState: {},
   userData: {},
 };
@@ -55,6 +56,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         userLoggedIn: true,
         userRegistered: true,
+        isDoctor: action.payload.isDoctor,
         userData: {
           ...state.userData,
           ...action.payload.user,
@@ -71,6 +73,7 @@ const reducer = (state = initialState, action) => {
         userLoggedIn: true,
         userRegistered: true,
         userDataLoaded: true,
+        isDoctor: action.payload.isDoctor,
         userData: {
           ...state.userData,
           ...action.payload.user,
