@@ -10,10 +10,12 @@ import RegisterScreen from './Register';
 import LoadingScreen from './Loading';
 
 import PatientHomeScreen from './PatientHome';
+import NewAppointmentScreen from './NewAppointment';
 
 import DoctorHomeScreen from './DoctorHome';
 
-const Stack = createStackNavigator();
+const AuthStack = createStackNavigator();
+const RootStack = createStackNavigator();
 
 const Navigator = ({
   appLoaded = false,
@@ -25,20 +27,28 @@ const Navigator = ({
     {!appLoaded ? (
       <LoadingScreen />
     ) : !userLoggedIn ? (
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="LoginOTP" component={LoginOTPScreen} />
-      </Stack.Navigator>
+      <AuthStack.Navigator headerMode="none">
+        <AuthStack.Screen name="Login" component={LoginScreen} />
+        <AuthStack.Screen name="LoginOTP" component={LoginOTPScreen} />
+      </AuthStack.Navigator>
     ) : !userRegistered ? (
       <RegisterScreen />
-    ) : !isDoctor ? (
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="Home" component={PatientHomeScreen} />
-      </Stack.Navigator>
     ) : (
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="Home" component={DoctorHomeScreen} />
-      </Stack.Navigator>
+      <RootStack.Navigator headerMode="none">
+        {!isDoctor ? (
+          <>
+            <RootStack.Screen name="Home" component={PatientHomeScreen} />
+            <RootStack.Screen
+              name="NewAppointment"
+              component={NewAppointmentScreen}
+            />
+          </>
+        ) : (
+          <>
+            <RootStack.Screen name="Home" component={DoctorHomeScreen} />
+          </>
+        )}
+      </RootStack.Navigator>
     )}
   </NavigationContainer>
 );
