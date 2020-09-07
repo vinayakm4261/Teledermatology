@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 
-import { ScreenWrapper, Label } from '../components';
+import { ScreenWrapper } from '../components';
+import NewAppointmentForm from '../forms/NewAppointment';
 
 const NewAppointmentScreen = ({ navigation }) => {
   const header = useMemo(
@@ -17,7 +18,9 @@ const NewAppointmentScreen = ({ navigation }) => {
       {...{ header }}
       style={{
         paddingHorizontal: 16,
-      }}></ScreenWrapper>
+      }}>
+      <NewAppointmentForm />
+    </ScreenWrapper>
   );
 };
 
