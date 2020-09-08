@@ -11,6 +11,7 @@ import moment from 'moment';
 import {
   Button,
   ChippedTextInput,
+  MediaUploaderInput,
   DateTimePicker,
   Label,
   ScreenWrapper,
@@ -132,6 +133,16 @@ const NewAppointmentScreen = ({
           }}
           disabled={isSubmitting}
         />
+        <MediaUploaderInput
+          name="media"
+          label="Media"
+          buttonProps={{
+            mode: 'contained',
+            theme: { colors: { primary: theme.colors.accent } },
+            dark: true,
+          }}
+          disabled={isSubmitting}
+        />
       </View>
       <Snackbar />
     </ScreenWrapper>
@@ -153,12 +164,19 @@ const validation = yup.object().shape({
     .required(),
   time: yup.date().required(),
   symptoms: yup.array().of(yup.string()),
+  media: yup.array().of(
+    yup.object().shape({
+      type: yup.string(),
+      uri: yup.string(),
+    }),
+  ),
 });
 
 const initialValues = () => ({
   date: moment().add(7, 'd').toDate(),
   time: moment('10:00AM', 'hh:mmA').toDate(),
   symptoms: [],
+  media: [],
 });
 
 const mapStateToProps = () => ({});
