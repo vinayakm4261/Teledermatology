@@ -12,6 +12,7 @@ export default function ({
   label = '',
   disabled = false,
   style = {},
+  buttonProps,
   ...props
 }) {
   const theme = useTheme();
@@ -88,17 +89,26 @@ export default function ({
           <Button
             style={{ height: 36, margin: 6, padding: 0 }}
             labelStyle={{ lineHeight: 20 }}
+            compact={true}
             icon="plus"
             onPress={handleAddPress}
-            theme={{ roundness: 6 }}
-            disabled={disabled}
-            compact={true}>
+            {...buttonProps}
+            disabled={disabled || !currentText}>
             Add
           </Button>
         </View>
       </>
     ),
-    [value, theme, disabled, props, removeValue, currentText, handleAddPress],
+    [
+      value,
+      theme,
+      disabled,
+      props,
+      removeValue,
+      currentText,
+      handleAddPress,
+      buttonProps,
+    ],
   );
 
   return (
