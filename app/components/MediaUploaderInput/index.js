@@ -1,25 +1,21 @@
-import React, { useState, useCallback } from 'react';
-import { View, TextInput as NativeTextInput } from 'react-native';
+import React, { useCallback } from 'react';
+import { View } from 'react-native';
 import { useField } from 'formik';
-import { TextInput, useTheme, Button } from 'react-native-paper';
+import { TextInput, Button } from 'react-native-paper';
 
 import Label from '../Typography/Label';
 import Chip from '../Chip';
 
 export default function ({
   name,
-  items,
   label = '',
   disabled = false,
   style = {},
   buttonProps,
-  ...props
 }) {
-  const theme = useTheme();
   const [{ value }, { touched, error }, { setValue, setTouched }] = useField(
     name,
   );
-  const [currentText, setCurrentText] = useState('');
 
   const changeValue = useCallback(
     (newValue) => {
@@ -30,9 +26,8 @@ export default function ({
   );
 
   const addValue = useCallback(
-    (rawItem) => {
-      const newItem = rawItem.trim();
-      !!newItem && !value.includes(newItem) && changeValue([...value, newItem]);
+    (item) => {
+      !!item && !value.includes(item) && changeValue([...value, item]);
     },
     [changeValue, value],
   );
@@ -45,9 +40,9 @@ export default function ({
   );
 
   const handleAddPress = useCallback(() => {
-    addValue(currentText);
-    setCurrentText('');
-  }, [addValue, currentText]);
+    alert('Show upload modal');
+    addValue({ type: 'image', uri: 'abc.jpg' });
+  }, []);
 
   const renderInputText = useCallback(
     () => (
@@ -62,53 +57,35 @@ export default function ({
               paddingBottom: 0,
             }}>
             {value.map((chip, idx) => (
-              <Chip key={chip} disabled={disabled} onClose={removeValue(idx)}>
-                {chip}
+              <Chip
+                key={chip.uri}
+                disabled={disabled}
+                onClose={removeValue(idx)}>
+                {chip.uri}
               </Chip>
             ))}
           </View>
         )}
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <NativeTextInput
-            value={currentText}
-            onChangeText={setCurrentText}
-            placeholderTextColor={theme.colors.placeholder}
-            style={{
-              flexGrow: 1,
-              margin: 0,
-              height: 48,
-              padding: 12,
-              fontSize: 16,
-              ...theme.fonts.regular,
-            }}
-            selectionColor={theme.colors.primary}
-            underlineColorAndroid="transparent"
-            editable={!disabled}
-            {...props}
-          />
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            justifyContent: 'flex-end',
+          }}>
           <Button
+            compact
             style={{ height: 36, margin: 6, padding: 0 }}
             labelStyle={{ lineHeight: 20, marginRight: 16 }}
-            compact={true}
-            icon="plus"
+            icon="upload"
             onPress={handleAddPress}
             {...buttonProps}
-            disabled={disabled || !currentText}>
-            Add
+            disabled={disabled}>
+            Upload
           </Button>
         </View>
       </>
     ),
-    [
-      value,
-      theme,
-      disabled,
-      props,
-      removeValue,
-      currentText,
-      handleAddPress,
-      buttonProps,
-    ],
+    [value, disabled, removeValue, handleAddPress, buttonProps],
   );
 
   return (
