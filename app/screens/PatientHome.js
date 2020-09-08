@@ -133,6 +133,9 @@ HomeScreen.propTypes = {
       time: PropTypes.string,
     }),
   ).isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({
