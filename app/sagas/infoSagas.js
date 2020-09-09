@@ -15,7 +15,7 @@ import { PATIENT_DATA_LOADED, PROFILE_UPDATED } from '../actions/infoActions';
 const retrieveToken = (authProvider) =>
   authProvider.currentUser.getIdToken(true);
 
-const loadPatientDataSaga = function* (action) {
+function* loadPatientDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -42,9 +42,9 @@ const loadPatientDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
 
-const loadDoctorDataSaga = function* (action) {
+function* loadDoctorDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -71,7 +71,7 @@ const loadDoctorDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
 
 function* patientProfileEditSaga(action) {
   try {
@@ -192,9 +192,34 @@ function* doctorProfileEditSaga(action) {
   }
 }
 
+function* fetchDoctorsSaga(action) {
+  try {
+    const queryText = action.payload;
+
+    const { response, error } = yield call(
+      requestAPI,
+      '/patient/fetchDoctors',
+      'POST',
+      { queryText },
+    );
+
+    if (error) {
+      yield call(rejectPromiseAction, action, error);
+    } else {
+      yield put({ type: DOCTORS_FETCHED, payload: { doctors: response } });
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
 export {
   loadPatientDataSaga,
   loadDoctorDataSaga,
   patientProfileEditSaga,
   doctorProfileEditSaga,
+  fetchDoctorsSaga,
 };

@@ -20,6 +20,7 @@ import formStyles from '../forms/styles';
 import useFormSubmit from '../hooks/useFormSubmit';
 import useSnackbar from '../hooks/useSnackbar';
 import useScreenDimensions from '../hooks/useScreenDimensions';
+import { fetchDoctorsAction } from '../actions/infoActions';
 
 const minimumDate = moment().add(1, 'd').toDate();
 const maximumDate = moment().add(31, 'd').toDate();
@@ -34,6 +35,7 @@ const NewAppointmentScreen = ({
   // Screen props
   navigation,
   newAppointment,
+  fetchDoctors,
 }) => {
   const theme = useTheme();
   const { width } = useScreenDimensions();
@@ -154,6 +156,7 @@ NewAppointmentScreen.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
   }).isRequired,
+  fetchDoctors: PropTypes.func.isRequired,
 };
 
 const validation = yup.object().shape({
@@ -179,9 +182,13 @@ const initialValues = () => ({
   media: [],
 });
 
-const mapStateToProps = () => ({});
+const mapStateToProps = (state) => ({
+  doctors: state.infoReducer.doctors,
+});
 
-const mapDispatchToProps = () => ({});
+const mapDispatchToProps = (dispatch) => ({
+  fetchDoctors: (text) => dispatch(fetchDoctorsAction(text)),
+});
 
 export default connect(
   mapStateToProps,

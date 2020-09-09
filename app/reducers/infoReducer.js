@@ -2,6 +2,7 @@ import { SIGN_OUT } from '../actions/authActions';
 import {
   PATIENT_DATA_LOADED,
   DOCTOR_DATA_LOADED,
+  DOCTORS_FETCHED,
 } from '../actions/infoActions';
 
 const initialState = {
@@ -29,6 +30,11 @@ const reducer = (state = initialState, action) => {
         dataLoaded: false,
         appointments: [],
         doctors: [],
+      };
+    case DOCTORS_FETCHED:
+      return {
+        ...state,
+        doctors: action.payload.doctors,
       };
     default:
       return state;

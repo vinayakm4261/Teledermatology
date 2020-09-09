@@ -14,3 +14,5 @@ export const patientProfileEditAction = createPromiseAction(
 export const doctorProfileEditAction = createPromiseAction(
   'DOCTOR_PROFILE_EDIT',
 );
+export const DOCTORS_FETCHED = 'DOCTORS_FETCHED';
+export const fetchDoctorsAction = createPromiseAction('FETCH_DOCTORS');
