@@ -8,9 +8,9 @@ import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
 import requestAPI from '../helpers/requestAPI';
 
-import { PATIENT_DATA_LOADED } from '../actions/infoActions';
+import { PATIENT_DATA_LOADED, DOCTORS_FETCHED } from '../actions/infoActions';
 
-const loadPatientDataSaga = function* (action) {
+function* loadPatientDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -37,9 +37,9 @@ const loadPatientDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
 
-const loadDoctorDataSaga = function* (action) {
+function* loadDoctorDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -66,6 +66,30 @@ const loadDoctorDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
 
-export { loadPatientDataSaga, loadDoctorDataSaga };
+function* fetchDoctorsSaga(action) {
+  try {
+    const queryText = action.payload;
+
+    const { response, error } = yield call(
+      requestAPI,
+      '/patient/fetchDoctors',
+      'POST',
+      { queryText },
+    );
+
+    if (error) {
+      yield call(rejectPromiseAction, action, error);
+    } else {
+      yield put({ type: DOCTORS_FETCHED, payload: { doctors: response } });
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
+export { loadPatientDataSaga, loadDoctorDataSaga, fetchDoctorsSaga };
