@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 
 import { ScreenWrapper, Button, Title } from '../components';
 import { setDatabaseAction, initChatAction } from '../actions/chatActions';
+import { signOutAction } from '../actions/authActions';
 
 const styles = StyleSheet.create({});
 
-const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
+const HomeScreen = ({ navigation, auth, setDatabase, initChat, signOut }) => {
   const theme = useTheme();
   const [chatID, setChatID] = useState('0d6de1984cd81bd295f4b3f9');
   const [submitting, setSubmitting] = useState(false);
@@ -32,12 +33,9 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat }) => {
       .finally(() => setSubmitting(false));
   }, [initChat, chatID, navigation]);
 
-  const handleSignOut = () => {
-    auth
-      .signOut()
-      .then(() => navigation.navigate('Login'))
-      .catch((err) => alert(err));
-  };
+  const handleSignOut = useCallback(() => {
+    signOut().catch((err) => console.log(err));
+  }, [signOut]);
 
   return (
     <ScreenWrapper>
@@ -83,6 +81,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   setDatabase: (payload) => dispatch(setDatabaseAction(payload)),
   initChat: (payload) => dispatch(initChatAction(payload)),
+  signOut: () => dispatch(signOutAction()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

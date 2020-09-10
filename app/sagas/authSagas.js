@@ -1,8 +1,11 @@
-import { put, call, select } from 'redux-saga/effects';
+import { eventChannel } from 'redux-saga';
+import { put, call, select, take, takeEvery } from 'redux-saga/effects';
 import {
   resolvePromiseAction,
   rejectPromiseAction,
 } from '@adobe/redux-saga-promise';
+import database from '@react-native-firebase/database';
+import messaging from '@react-native-firebase/messaging';
 
 import API from '../config/API';
 import {
@@ -11,21 +14,13 @@ import {
   NEW_REGISTER,
   AUTH_COMPLETE,
   LOAD_COMPLETE,
+  SIGN_OUT,
 } from '../actions/authActions';
+import { APP_LOADED } from '../actions/localeActions';
 
 import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
-import { APP_LOADED } from '../actions/localeActions';
-
-const responseCodeErrorMap = defaultDict(
-  {
-    404: errorTypes.COMMON.INTERNAL_ERROR,
-    500: errorTypes.COMMON.SERVER_ERROR,
-    422: errorTypes.COMMON.INVALID_REQUEST,
-    400: errorTypes.COMMON.INTERNAL_ERROR,
-  },
-  errorTypes.COMMON.NETWORK_ERROR,
-);
+import requestAPI from '../helpers/requestAPI';
 
 const firebaseErrorMap = defaultDict(
   {
@@ -39,22 +34,6 @@ const firebaseErrorMap = defaultDict(
   errorTypes.COMMON.INTERNAL_ERROR,
 );
 
-const requestAPI = (route, request, payload) =>
-  API({
-    url: route,
-    method: request,
-    data: payload,
-  })
-    .then((response) => ({ response: response.data, error: null }))
-    .catch((err) => {
-      const { status = {} } = err.response || {};
-
-      return {
-        response: null,
-        error: { type: responseCodeErrorMap[status] },
-      };
-    });
-
 const retrieveToken = (authProvider) =>
   authProvider.currentUser.getIdToken(true);
 
@@ -63,7 +42,10 @@ const phoneAuth = (authProvider, phoneNumber) =>
     .signInWithPhoneNumber(phoneNumber)
     .then((confirmation) => ({ confirmation, error: null }))
     .catch((err) => {
-      return { confirm: null, error: { type: firebaseErrorMap[err.code] } };
+      return {
+        confirm: null,
+        error: { type: firebaseErrorMap[err.code], err },
+      };
     });
 
 const otpAuth = (authProvider, otp) =>
@@ -74,9 +56,56 @@ const otpAuth = (authProvider, otp) =>
       return {
         phoneNumber: null,
         uid: null,
-        otpError: { type: firebaseErrorMap[err.code] },
+        otpError: { type: firebaseErrorMap[err.code], err },
       };
     });
+
+const authChannelCreator = (authProvider) => {
+  const listener = eventChannel((emit) => {
+    const unsubscribe = authProvider.onAuthStateChanged((user) =>
+      emit({ user }),
+    );
+
+    return unsubscribe;
+  });
+
+  return listener;
+};
+
+const getNotificationPermissions = async () => {
+  const authStatus = await messaging().requestPermission();
+
+  const enabled =
+    authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+    authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+  return enabled;
+};
+
+const storeTokenToDB = (uid, fcmToken) =>
+  database()
+    .ref(`/users/${uid}`)
+    .set({ fcmToken })
+    .then(() => ({ tokenSaved: true }))
+    .catch(() => ({ tokenSaved: false }));
+
+const storeFCMToken = (uid) =>
+  messaging()
+    .getToken()
+    .then((token) => storeTokenToDB(uid, token))
+    .catch((err) => ({ type: errorTypes.COMMON.INTERNAL_ERROR, err }));
+
+const createRefreshChannel = () => {
+  const listener = eventChannel((emit) => {
+    const unsubscribe = messaging().onTokenRefresh((token) => emit({ token }));
+
+    return unsubscribe;
+  });
+
+  return listener;
+};
+
+const authSignOut = (authProvider) => authProvider.signOut();
 
 function* authLoadedSaga(action) {
   try {
@@ -100,7 +129,9 @@ function* appLoadedSaga(action) {
       auth: state.authReducer.auth,
     }));
 
-    if (authLoaded && auth) {
+    const notificationPermissions = yield call(getNotificationPermissions);
+
+    if (authLoaded && auth && notificationPermissions) {
       yield put({ type: APP_LOADED });
       yield call(resolvePromiseAction, action, {});
     } else {
@@ -125,25 +156,39 @@ function* loadUserDataSaga(action) {
 
       const { uid } = user;
 
-      const { response, error } = yield call(
-        requestAPI,
-        '/patient/login',
-        'POST',
-        { _id: uid },
-      );
+      const tokenSaved = yield call(storeFCMToken, uid);
 
-      if (error) {
-        yield call(rejectPromiseAction, action, error);
-      } else if (response) {
-        if (response.new) {
-          yield call(resolvePromiseAction, action, {});
-        } else {
-          yield put({
-            type: LOAD_COMPLETE,
-            payload: { user: { ...response.user } },
-          });
-          yield call(resolvePromiseAction, action, {});
+      if (tokenSaved) {
+        const { response, error } = yield call(
+          requestAPI,
+          '/common/login',
+          'POST',
+          { _id: uid },
+        );
+
+        if (error) {
+          yield call(rejectPromiseAction, action, error);
+        } else if (response) {
+          if (response.new) {
+            yield call(resolvePromiseAction, action, {});
+          } else {
+            yield put({
+              type: LOAD_COMPLETE,
+              payload: { user: response.user, isDoctor: response.isDoctor },
+            });
+            yield call(resolvePromiseAction, action, {});
+          }
         }
+
+        const refreshChannel = yield call(createRefreshChannel);
+
+        yield takeEvery(refreshChannel, function* (fcmToken) {
+          yield call(storeTokenToDB, uid, fcmToken);
+        });
+      } else {
+        yield call(rejectPromiseAction, action, {
+          type: errorTypes.COMMON.INTERNAL_ERROR,
+        });
       }
     } else {
       yield call(resolvePromiseAction, action, {});
@@ -187,44 +232,114 @@ function* otpSaga(action) {
       auth: state.authReducer.auth,
     }));
 
-    const { phoneNumber, uid, otpError } = yield call(
-      otpAuth,
-      confirmation,
-      otp,
-    );
+    const authChannel = yield call(authChannelCreator, auth);
 
-    if (otpError) {
-      yield call(rejectPromiseAction, action, otpError);
-    } else if (phoneNumber && uid) {
+    const authAuto = yield take(authChannel);
+
+    if (authAuto.user) {
       API.defaults.headers.common.authtoken = yield call(retrieveToken, auth);
 
-      const { response, error } = yield call(
-        requestAPI,
-        '/patient/login',
-        'POST',
-        { _id: uid },
+      const { uid, phoneNumber } = auth.currentUser;
+
+      const tokenSaved = yield call(storeFCMToken, uid);
+
+      if (tokenSaved) {
+        const { response, error } = yield call(
+          requestAPI,
+          '/common/login',
+          'POST',
+          { _id: uid },
+        );
+
+        if (error) {
+          yield call(rejectPromiseAction, action, error);
+        } else if (response) {
+          if (response.new) {
+            yield put({ type: NEW_REGISTER, payload: { uid, phoneNumber } });
+            yield call(resolvePromiseAction, action, {
+              ...response,
+              navigate: 'RegisterScreen',
+            });
+          } else {
+            yield put({
+              type: AUTH_COMPLETE,
+              payload: { user: response.user, isDoctor: response.isDoctor },
+            });
+            yield call(resolvePromiseAction, action, {
+              new: false,
+              navigate: 'HomeScreen',
+            });
+          }
+        }
+
+        const refreshChannel = yield call(createRefreshChannel);
+
+        yield takeEvery(refreshChannel, function* (fcmToken) {
+          yield call(storeTokenToDB, uid, fcmToken);
+        });
+      } else {
+        yield call(rejectPromiseAction, action, {
+          type: errorTypes.COMMON.INTERNAL_ERROR,
+        });
+      }
+
+      authChannel.close();
+    } else {
+      const { phoneNumber, uid, otpError } = yield call(
+        otpAuth,
+        confirmation,
+        otp,
       );
 
-      if (error) {
-        yield call(rejectPromiseAction, action, error);
-      } else if (response) {
-        if (response.new) {
-          yield put({ type: NEW_REGISTER, payload: { uid, phoneNumber } });
-          yield call(resolvePromiseAction, action, {
-            ...response,
-            navigate: 'RegisterScreen',
+      if (otpError) {
+        yield call(rejectPromiseAction, action, otpError);
+      } else if (phoneNumber && uid) {
+        API.defaults.headers.common.authtoken = yield call(retrieveToken, auth);
+
+        const tokenSaved = yield call(storeFCMToken, uid);
+
+        if (tokenSaved) {
+          const { response, error } = yield call(
+            requestAPI,
+            '/common/login',
+            'POST',
+            { _id: uid },
+          );
+
+          if (error) {
+            yield call(rejectPromiseAction, action, error);
+          } else if (response) {
+            if (response.new) {
+              yield put({ type: NEW_REGISTER, payload: { uid, phoneNumber } });
+              yield call(resolvePromiseAction, action, {
+                ...response,
+                navigate: 'RegisterScreen',
+              });
+            } else {
+              yield put({
+                type: AUTH_COMPLETE,
+                payload: { user: response.user, isDoctor: response.isDoctor },
+              });
+              yield call(resolvePromiseAction, action, {
+                new: false,
+                navigate: 'HomeScreen',
+              });
+            }
+          }
+
+          const refreshChannel = yield call(createRefreshChannel);
+
+          yield takeEvery(refreshChannel, function* (fcmToken) {
+            yield call(storeTokenToDB, uid, fcmToken);
           });
         } else {
-          yield put({
-            type: AUTH_COMPLETE,
-            payload: { user: { ...response.user } },
-          });
-          yield call(resolvePromiseAction, action, {
-            new: false,
-            navigate: 'HomeScreen',
+          yield call(rejectPromiseAction, action, {
+            type: errorTypes.COMMON.INTERNAL_ERROR,
           });
         }
       }
+
+      authChannel.close();
     }
   } catch (err) {
     console.log(err);
@@ -264,6 +379,21 @@ function* registerSaga(action) {
   }
 }
 
+function* signOutSaga(action) {
+  try {
+    const auth = yield select((state) => state.authReducer.auth);
+
+    yield call(authSignOut, auth);
+
+    yield put({ type: SIGN_OUT });
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
 export {
   authLoadedSaga,
   appLoadedSaga,
@@ -271,4 +401,5 @@ export {
   loginWithPhoneSaga,
   otpSaga,
   registerSaga,
+  signOutSaga,
 };

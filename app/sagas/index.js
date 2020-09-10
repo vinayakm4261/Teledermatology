@@ -7,6 +7,7 @@ import {
   loginWithPhoneSaga,
   otpSaga,
   registerSaga,
+  signOutSaga,
 } from './authSagas';
 import {
   setDatabaseSaga,
@@ -24,4 +25,5 @@ export default function* rootSaga() {
   yield takeEvery('SET_DB.TRIGGER', setDatabaseSaga);
   yield takeEvery('INIT_CHAT.TRIGGER', initChatWatcher);
   yield takeEvery('SEND_MESSAGE.TRIGGER', sendMessageWatcher);
+  yield takeEvery('SIGN_OUT_USER.TRIGGER', signOutSaga);
 }
