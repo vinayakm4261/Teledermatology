@@ -106,6 +106,9 @@ const HomeScreen = ({
             <Button compact onPress={() => alert('All Appointments')}>
               View All Appointments
             </Button>
+            <Button compact onPress={() => navigation.navigate('HomeVideo')}>
+              Video call
+            </Button>
           </>
         )}
       </Loader>

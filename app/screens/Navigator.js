@@ -13,6 +13,9 @@ import PatientHomeScreen from './PatientHome';
 
 import DoctorHomeScreen from './DoctorHome';
 
+import HomeVideo from './HomeVideo';
+import Video from './Video';
+
 const Stack = createStackNavigator();
 
 const Navigator = ({
@@ -34,10 +37,14 @@ const Navigator = ({
     ) : !isDoctor ? (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={PatientHomeScreen} />
+        <Stack.Screen name="HomeVideo" component={HomeVideo} />
+        <Stack.Screen name="Video" component={Video} />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={DoctorHomeScreen} />
+        <Stack.Screen name="HomeVideo" component={HomeVideo} />
+        <Stack.Screen name="Video" component={Video} />
       </Stack.Navigator>
     )}
   </NavigationContainer>
