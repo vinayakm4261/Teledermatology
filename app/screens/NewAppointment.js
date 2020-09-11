@@ -22,6 +22,8 @@ import useSnackbar from '../hooks/useSnackbar';
 import useScreenDimensions from '../hooks/useScreenDimensions';
 import { fetchDoctorsAction } from '../actions/infoActions';
 
+import useMediaPickerDialog from '../hooks/useMediaPickerDialog';
+
 const minimumDate = moment().add(1, 'd').toDate();
 const maximumDate = moment().add(31, 'd').toDate();
 
@@ -40,6 +42,10 @@ const NewAppointmentScreen = ({
   const theme = useTheme();
   const { width } = useScreenDimensions();
   const { Snackbar, showSnackbar } = useSnackbar();
+  const MediaPicker = useMediaPickerDialog({
+    onError: console.error,
+    onPicked: (x) => alert(JSON.stringify(x)),
+  });
 
   const onSubmit = useCallback(
     (submittedValues) => {
@@ -108,45 +114,49 @@ const NewAppointmentScreen = ({
         paddingHorizontal: 16,
         paddingBottom: 64,
       }}>
-      <View style={formStyles.inputGroup}>
-        <Label>Timings</Label>
-        <View style={formStyles.inputRow}>
-          <DateTimePicker
-            style={formStyles.inputRowLeft}
-            name="date"
+      <>
+        <View style={formStyles.inputGroup}>
+          <Label>Timings</Label>
+          <View style={formStyles.inputRow}>
+            <DateTimePicker
+              style={formStyles.inputRowLeft}
+              name="date"
+              disabled={isSubmitting}
+              {...{ maximumDate, minimumDate }}
+            />
+            <DateTimePicker
+              mode="time"
+              style={formStyles.inputRowRight}
+              name="time"
+              minuteInterval={15}
+              disabled={isSubmitting}
+            />
+          </View>
+          <ChippedTextInput
+            name="symptoms"
+            label="Symptoms"
+            buttonProps={{
+              mode: 'contained',
+              theme: { colors: { primary: theme.colors.accent } },
+              dark: true,
+            }}
             disabled={isSubmitting}
-            {...{ maximumDate, minimumDate }}
           />
-          <DateTimePicker
-            mode="time"
-            style={formStyles.inputRowRight}
-            name="time"
-            minuteInterval={15}
+          <MediaUploaderInput
+            name="media"
+            label="Media"
+            buttonProps={{
+              mode: 'contained',
+              theme: { colors: { primary: theme.colors.accent } },
+              dark: true,
+            }}
             disabled={isSubmitting}
           />
+          <Button onPress={MediaPicker.showDialog}>Media Picker</Button>
         </View>
-        <ChippedTextInput
-          name="symptoms"
-          label="Symptoms"
-          buttonProps={{
-            mode: 'contained',
-            theme: { colors: { primary: theme.colors.accent } },
-            dark: true,
-          }}
-          disabled={isSubmitting}
-        />
-        <MediaUploaderInput
-          name="media"
-          label="Media"
-          buttonProps={{
-            mode: 'contained',
-            theme: { colors: { primary: theme.colors.accent } },
-            dark: true,
-          }}
-          disabled={isSubmitting}
-        />
-      </View>
-      <Snackbar />
+        <MediaPicker.Dialog />
+        <Snackbar />
+      </>
     </ScreenWrapper>
   );
 };
