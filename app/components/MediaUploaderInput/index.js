@@ -1,9 +1,14 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import { useField } from 'formik';
-import { TextInput, Button } from 'react-native-paper';
+import { TextInput, useTheme } from 'react-native-paper';
+import Modal from 'react-native-modal';
+import ImagePicker from 'react-native-image-picker';
 
+import formStyles from '../../forms/styles';
+import Caption from '../Typography/Caption';
 import Label from '../Typography/Label';
+import Button from '../Button';
 import Chip from '../Chip';
 
 export default function ({
@@ -13,9 +18,13 @@ export default function ({
   style = {},
   buttonProps,
 }) {
+  const theme = useTheme();
   const [{ value }, { touched, error }, { setValue, setTouched }] = useField(
     name,
   );
+  const mediaTypeCounter = useState({ photo: 0, video: 0, audio: 0 });
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   const changeValue = useCallback(
     (newValue) => {
@@ -39,10 +48,13 @@ export default function ({
     [value, changeValue],
   );
 
-  const handleAddPress = useCallback(() => {
-    alert('Show upload modal');
-    addValue({ type: 'image', uri: 'abc.jpg' });
-  }, []);
+  const showMediaPicker = useCallback(() => {
+    setModalVisible(true);
+  }, [setModalVisible]);
+
+  const closeMediaPicker = useCallback(() => {
+    setModalVisible(false);
+  }, [setModalVisible]);
 
   const renderInputText = useCallback(
     () => (
@@ -77,7 +89,7 @@ export default function ({
             style={{ height: 36, margin: 6, padding: 0 }}
             labelStyle={{ lineHeight: 20, marginRight: 16 }}
             icon="upload"
-            onPress={handleAddPress}
+            onPress={showMediaPicker}
             {...buttonProps}
             disabled={disabled}>
             Upload
@@ -85,22 +97,118 @@ export default function ({
         </View>
       </>
     ),
-    [value, disabled, removeValue, handleAddPress, buttonProps],
+    [value, disabled, removeValue, showMediaPicker, buttonProps],
   );
 
   return (
-    <View style={style}>
-      <Label>{label}</Label>
-      <TextInput
-        mode="flat"
-        dense={true}
+    <>
+      <View style={style}>
+        <Label>{label}</Label>
+        <TextInput
+          mode="flat"
+          dense={true}
+          style={{
+            height: 48,
+            padding: 0,
+          }}
+          error={touched && error}
+          render={renderInputText}
+        />
+      </View>
+      <Modal
+        useNativeDriver
+        hideModalContentWhileAnimating
+        backdropOpacity={0.25}
         style={{
-          height: 48,
+          justifyContent: 'flex-end',
           padding: 0,
+          margin: 0,
         }}
-        error={touched && error}
-        render={renderInputText}
-      />
-    </View>
+        isVisible={modalVisible}
+        swipeDirection={['down']}
+        onBackdropPress={closeMediaPicker}
+        onBackButtonPress={closeMediaPicker}
+        onModalHide={closeMediaPicker}
+        onSwipeComplete={closeMediaPicker}>
+        <View
+          style={{
+            margin: 8,
+            padding: 12,
+            backgroundColor: 'white',
+            zIndex: 100,
+            borderRadius: theme.roundness * 2,
+          }}>
+          <Caption>Media Type</Caption>
+          <View style={formStyles.inputRow}>
+            <Button
+              compact
+              style={formStyles.inputRowLeft}
+              icon="image-outline"
+              onPress={() => {
+                ImagePicker.showImagePicker(
+                  {
+                    title: 'Select Image',
+                    takePhotoButtonTitle: 'Camera',
+                    chooseFromLibraryButtonTitle: 'Choose from Library',
+                    mediaType: 'photo',
+                    noData: true,
+                    storageOptions: {
+                      skipBackup: true,
+                      cameraRoll: false,
+                      privateDirectory: true,
+                      waitUntilSaved: true,
+                    },
+                  },
+                  (response) => {
+                    if (!(response.error || response.didCancel))
+                      console.log(response.uri);
+                  },
+                );
+              }}
+              mode="contained">
+              Photo
+            </Button>
+            <Button
+              compact
+              style={formStyles.inputRowRight}
+              icon="video-outline"
+              onPress={() => {
+                ImagePicker.showImagePicker(
+                  {
+                    title: 'Select Video',
+                    takePhotoButtonTitle: 'Camera',
+                    chooseFromLibraryButtonTitle: 'Choose from Library',
+                    mediaType: 'video',
+                    noData: true,
+                    storageOptions: {
+                      skipBackup: true,
+                      cameraRoll: false,
+                      privateDirectory: true,
+                      waitUntilSaved: true,
+                    },
+                  },
+                  (response) => {
+                    if (!(response.error || response.didCancel))
+                      console.log(response.uri);
+                  },
+                );
+              }}
+              mode="contained">
+              Video
+            </Button>
+          </View>
+          <Button
+            compact
+            style={{ marginTop: 8 }}
+            icon="microphone"
+            onPress={() => {
+              alert('Garam Hai');
+            }}
+            mode="contained">
+            Audio
+          </Button>
+        </View>
+      </Modal>
+    </>
   );
 }

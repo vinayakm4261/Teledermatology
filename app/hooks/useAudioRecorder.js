@@ -1,44 +1,59 @@
-import { useRef, useState, useCallback } from 'react';
-import { Player, Recorder } from '@react-native-community/audio-toolkit';
+import { useRef, useCallback } from 'react';
+import { Recorder } from '@react-native-community/audio-toolkit';
+import moment from 'moment';
 import { useAudioPermission } from './usePermission';
 
-const useAudioRecorder = (filename) => {
+export const DEFAULT_RECORDER_OPTIONS = {
+  bitrate: 64000,
+  channels: 1,
+  format: 'aac',
+  encoder: 'aac',
+  quality: 'medium',
+};
+
+export const errorCodes = {
+  INVALID_PATH: 'invaidpath',
+  PREPARE_FAIL: 'preparefail',
+  START_FAIL: 'startfail',
+  END_FAIL: 'endfail',
+  INTERNAL_ERROR: 'notfound',
+  NO_PERMISSION: 'nopermission',
+  NOT_SUPPORTED: 'notsupported',
+};
+
+const useAudioRecorder = ({ onError, onRecorded, onRecordingStart } = {}) => {
   const recorder = useRef(null);
-  const [isRecording, setIsRecording] = useState(false);
   const audioPermission = useAudioPermission();
 
   const startRecording = useCallback(() => {
     if (audioPermission) {
-      recorder.current = new Recorder(filename).record((err) => {
-        console.log('recording');
-        console.log(recorder.current);
-        console.log(err);
-        setIsRecording(true);
+      recorder.current = new Recorder(
+        `${moment().format('YYYYMMDDHHmmss')}.${
+          DEFAULT_RECORDER_OPTIONS.format
+        }`,
+        DEFAULT_RECORDER_OPTIONS,
+      ).record((error) => {
+        if (error) {
+          if (onError) onError(error);
+          recorder.current?.destroy();
+        } else if (onRecordingStart) onRecordingStart();
       });
-    } else console.log('no permission');
-  }, [audioPermission, filename]);
+    } else if (onError) onError(errorCodes.NO_PERMISSION);
+  }, [audioPermission, onError, onRecordingStart]);
 
   const endRecording = useCallback(() => {
-    console.log('stopping');
-    console.log(recorder.current);
-    recorder.current.stop((err) => {
-      setIsRecording(false);
-      if (err) console.log(err);
-      else {
-        recorder.current = null;
-        new Player(filename)
-          .play(() => {
-            console.log('playing');
-          })
-          .on('ended', (playerr) => {
-            console.log(playerr);
-            console.log('played');
-          });
-      }
+    recorder.current.stop((error) => {
+      if (error) onError && onError(error);
+      else onRecorded && onRecorded(recorder.current?.fsPath);
+      recorder.current?.destroy();
     });
-  }, [filename]);
+  }, [onError, onRecorded]);
 
-  return { startRecording, endRecording, isRecording };
+  return {
+    ...recorder.current,
+    startRecording,
+    endRecording,
+  };
 };
 
 export default useAudioRecorder;
