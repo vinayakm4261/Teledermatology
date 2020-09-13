@@ -39,16 +39,22 @@ const createChatNode = (
   reference,
   path,
   author,
+  name,
+  profilePic,
   receiver,
-  content = 'Chat Init',
+  text = 'Chat Init',
 ) => {
   const createRef = reference.child(path).push();
 
   const data = {
-    author,
-    receiver,
-    content,
-    timeStamp: Date.now(),
+    _id: createRef.key,
+    text,
+    createdAt: Date.now(),
+    user: {
+      _id: author,
+      name,
+      avatar: profilePic,
+    },
   };
 
   return createRef
@@ -91,9 +97,11 @@ function* initChatSaga(action) {
   try {
     const { appointmentID, receiverID } = action.payload;
 
-    const { ref, userID } = yield select((state) => ({
+    const { ref, userID, name, profilePic } = yield select((state) => ({
       ref: state.chatReducer.database,
       userID: state.authReducer.userData._id,
+      name: state.authReducer.userData.name,
+      profilePic: state.authReducer.userData.profilePic,
     }));
 
     const { snapshot, error } = yield call(checkChatNode, ref, appointmentID);
@@ -126,6 +134,8 @@ function* initChatSaga(action) {
           ref,
           appointmentID,
           userID,
+          name,
+          profilePic,
           receiverID,
         );
 
@@ -170,17 +180,25 @@ function* initChatWatcher(action) {
 
 function* sendMessageSaga(action) {
   try {
-    const content = action.payload;
+    const text = action.payload;
 
-    const { ref, userID, receiverID, appointmentID, chats } = yield select(
-      (state) => ({
-        ref: state.chatReducer.database,
-        appointmentID: state.chatReducer.appointmentID,
-        userID: state.authReducer.userData._id,
-        receiverID: state.chatReducer.receiverID,
-        chats: state.chatReducer.chats,
-      }),
-    );
+    const {
+      ref,
+      userID,
+      receiverID,
+      appointmentID,
+      chats,
+      name,
+      profilePic,
+    } = yield select((state) => ({
+      ref: state.chatReducer.database,
+      appointmentID: state.chatReducer.appointmentID,
+      userID: state.authReducer.userData._id,
+      receiverID: state.chatReducer.receiverID,
+      chats: state.chatReducer.chats,
+      name: state.authReducer.userData.name,
+      profilePic: state.authReducer.userData.profilePic,
+    }));
 
     if (Object.keys(chats).length === 0) {
       console.log('Initialise chat channel');
@@ -193,8 +211,10 @@ function* sendMessageSaga(action) {
         ref,
         appointmentID,
         userID,
+        name,
+        profilePic,
         receiverID,
-        content,
+        text,
       );
 
       if (error) {

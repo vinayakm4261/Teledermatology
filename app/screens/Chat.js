@@ -79,17 +79,17 @@ const ChatScreen = ({
       <FlatList
         inverted={true}
         data={Object.entries(messages).sort(
-          (a, b) => b[1].timeStamp - a[1].timeStamp,
+          (a, b) => b[1].createdAt - a[1].createdAt,
         )}
         keyExtractor={([id, _]) => id}
         renderItem={({ item: [id, msg] }) => {
-          return msg.author === userID ? (
+          return msg.user._id === userID ? (
             <View style={styles.senderContainer} key={id}>
-              <Text style={styles.chatText}>{msg.content}</Text>
+              <Text style={styles.chatText}>{msg.text}</Text>
             </View>
           ) : (
             <View style={styles.receiverContainer} key={id}>
-              <Text style={styles.chatText}>{msg.content}</Text>
+              <Text style={styles.chatText}>{msg.text}</Text>
             </View>
           );
         }}
