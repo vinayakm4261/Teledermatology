@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, Text, FlatList } from 'react-native';
 import { TextInput, FAB, IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
+import { GiftedChat } from 'react-native-gifted-chat';
 
 import { ScreenWrapper, Title } from '../components';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
@@ -19,7 +20,7 @@ const styles = StyleSheet.create({
   },
   receiverContainer: {
     alignSelf: 'flex-start',
-    backgroundColor: '#E5E3FF',
+    backgroundColor: '#eeeeee',
     minHeight: 40,
     maxWidth: 238,
     padding: 10,
@@ -69,54 +70,26 @@ const ChatScreen = ({
   }, [exitChat, navigation]);
 
   return (
-    <ScreenWrapper scrolling={false}>
+    <>
       <View style={{ alignItems: 'center', flexDirection: 'row', height: 56 }}>
         <IconButton icon="arrow-left" onPress={handleExitChat}>
           Close
         </IconButton>
         <Title>Chats</Title>
       </View>
-      <FlatList
-        inverted={true}
-        data={Object.entries(messages).sort(
-          (a, b) => b[1].timeStamp - a[1].timeStamp,
+      <GiftedChat
+        messages={Object.values(messages).sort(
+          (a, b) => b.createdAt - a.createdAt,
         )}
-        keyExtractor={([id, _]) => id}
-        renderItem={({ item: [id, msg] }) => {
-          return msg.author === userID ? (
-            <View style={styles.senderContainer} key={id}>
-              <Text style={styles.chatText}>{msg.content}</Text>
-            </View>
-          ) : (
-            <View style={styles.receiverContainer} key={id}>
-              <Text style={styles.chatText}>{msg.content}</Text>
-            </View>
-          );
+        onSend={() => {
+          handleSendMessage(message);
         }}
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingHorizontal: 12,
-          paddingVertical: 4,
+        onInputTextChanged={(text) => {
+          setMessage(text);
         }}
+        user={{ _id: userID }}
       />
-      <View style={styles.inputContainer}>
-        <TextInput
-          placeholder="Message"
-          style={{ flex: 1, marginRight: 16, height: 52 }}
-          value={message}
-          dense
-          onChangeText={setMessage}
-        />
-        <FAB
-          onPress={handleSendMessage}
-          disabled={!!sending || !message}
-          loading={sending}
-          icon="send"
-          small
-          style={styles.sendButton}
-        />
-      </View>
-    </ScreenWrapper>
+    </>
   );
 };
 
