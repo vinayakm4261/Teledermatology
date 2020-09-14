@@ -4,8 +4,9 @@ import { TextInput, useTheme } from 'react-native-paper';
 import { connect } from 'react-redux';
 
 import { ScreenWrapper, Button, Title } from '../components';
+import { initVideoCallAction } from '../actions/infoActions';
 
-const HomeScreen = ({ navigation, auth }) => {
+const HomeScreen = ({ navigation, auth, initVideoCall }) => {
   const theme = useTheme();
   const [channelName, setChannelName] = useState('channel-x');
   const [submitting, setSubmitting] = useState(false);
@@ -16,10 +17,16 @@ const HomeScreen = ({ navigation, auth }) => {
 
   const handleInitVideoCall = useCallback(() => {
     setSubmitting(true);
-    navigation.navigate('Video', {
-      channelName,
-    });
-  }, [navigation, setSubmitting, channelName]);
+    initVideoCall(channelName)
+      .then(({ token }) =>
+        navigation.navigate('Video', {
+          channelName,
+          token,
+        }),
+      )
+      .catch((err) => alert(JSON.stringify(err)))
+      .finally(() => setSubmitting(false));
+  }, [navigation, setSubmitting, channelName, initVideoCall]);
 
   const handleSignOut = useCallback(() => {
     auth
@@ -63,4 +70,8 @@ const mapStateToProps = (state) => ({
   auth: state.authReducer.auth,
 });
 
-export default connect(mapStateToProps)(HomeScreen);
+const mapDispatchToProps = (dispatch) => ({
+  initVideoCall: (channelName) => dispatch(initVideoCallAction(channelName)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

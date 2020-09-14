@@ -1,33 +1,42 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import {
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { View, StyleSheet, Dimensions } from 'react-native';
 import RtcEngine, {
   RtcLocalView,
   RtcRemoteView,
   VideoRenderMode,
 } from 'react-native-agora';
+import { FAB, IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
 
-import requestCameraAndAudioPermission from '../components/VideoComponents/Permission';
-import styles from '../components/VideoComponents/Style';
+import { Loader, ScreenWrapper } from '../components';
+
+import useSnackbar from '../hooks/useSnackbar';
 import APP_ID from '../config/agora';
 
+const { height, width } = Dimensions.get('window');
+
+const styles = StyleSheet.create({
+  localVideoContainer: {
+    position: 'absolute',
+    zIndex: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  remote: {
+    width: width / 3,
+    height: 180,
+    margin: 16,
+    borderRadius: 10,
+  },
+});
+
 const VideoScreen = ({ route, navigation, isDoctor }) => {
-  const { channelName } = route.params;
+  const { channelName, token } = route.params;
   const [joinSucceed, setJoinSucceed] = useState(false);
   const [peerIds, setPeerIds] = useState([]);
+  const [muted, setMuted] = useState(false);
+  const { Snackbar, showSnackbar } = useSnackbar();
   const engine = useRef(RtcEngine);
-
-  if (Platform.OS === 'android') {
-    requestCameraAndAudioPermission().then(() => {
-      console.log('requested!');
-    });
-  }
 
   useEffect(() => {
     init();
@@ -43,6 +52,7 @@ const VideoScreen = ({ route, navigation, isDoctor }) => {
 
     engine.current.addListener('Error', (err) => {
       console.log('Error', err);
+      showSnackbar(err);
     });
 
     engine.current.addListener('UserJoined', (uID, elapsed) => {
@@ -66,66 +76,97 @@ const VideoScreen = ({ route, navigation, isDoctor }) => {
         setJoinSucceed(true);
       },
     );
-  }, [peerIds]);
 
-  const startCall = useCallback(async () => {
-    await engine.current.joinChannel('', channelName, null, isDoctor ? 1 : 0);
-  }, [channelName, isDoctor]);
+    await engine.current.joinChannel(
+      token,
+      channelName,
+      null,
+      isDoctor ? 1 : 0,
+    );
+  }, [peerIds, isDoctor, channelName, token, showSnackbar]);
 
   const endCall = useCallback(async () => {
     await engine.current.leaveChannel();
+    await engine.current.destroy();
     setPeerIds([]);
     setJoinSucceed(false);
-  }, [setPeerIds, setJoinSucceed]);
+    navigation.goBack(null);
+  }, [setPeerIds, setJoinSucceed, navigation]);
 
-  const _renderVideos = useCallback(() => {
-    return joinSucceed ? (
-      <View style={styles.fullView}>
-        <RtcLocalView.SurfaceView
-          style={styles.max}
-          channelId={channelName}
-          renderMode={VideoRenderMode.Hidden}
+  const muteAudio = useCallback(async () => {
+    await engine.current.muteLocalAudioStream(!muted);
+    setMuted(!muted);
+  }, [muted]);
+
+  const flipCamera = useCallback(async () => {
+    await engine.current.switchCamera();
+  }, []);
+
+  const renderFooter = useCallback(
+    () => (
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          margin: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'row',
+        }}>
+        <IconButton
+          icon={muted ? 'microphone' : 'microphone-off'}
+          color="#FFFFFF"
+          onPress={muteAudio}
         />
-        {_renderRemoteVideos()}
+        <FAB
+          style={{ marginHorizontal: 16 }}
+          icon="phone-hangup"
+          onPress={endCall}
+          theme={{ colors: { accent: '#bd0f32' } }}
+        />
+        <IconButton icon="camera-switch" color="#FFFFFF" onPress={flipCamera} />
+        <IconButton
+          style={{ marginRight: -38, zIndex: 10 }}
+          icon="dots-vertical"
+          color="#FFFFFF"
+          onPress={() => console.log('More')}
+        />
       </View>
-    ) : null;
-  }, [_renderRemoteVideos, joinSucceed, channelName, peerIds]);
-
-  const _renderRemoteVideos = useCallback(() => {
-    return (
-      <ScrollView
-        style={styles.remoteContainer}
-        contentContainerStyle={{ paddingHorizontal: 2.5 }}
-        horizontal={true}>
-        {peerIds.map((value, index, array) => {
-          return (
-            <RtcRemoteView.SurfaceView
-              style={styles.remote}
-              uid={value}
-              channelId={channelName}
-              renderMode={VideoRenderMode.Hidden}
-              zOrderMediaOverlay={true}
-            />
-          );
-        })}
-      </ScrollView>
-    );
-  }, [peerIds, channelName]);
+    ),
+    [endCall, muted, muteAudio, flipCamera],
+  );
 
   return (
-    <View style={styles.max}>
-      <View style={styles.max}>
-        <View style={styles.buttonHolder}>
-          <TouchableOpacity onPress={startCall} style={styles.button}>
-            <Text style={styles.buttonText}> Start Call </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={endCall} style={styles.button}>
-            <Text style={styles.buttonText}> End Call </Text>
-          </TouchableOpacity>
-        </View>
-        {_renderVideos()}
-      </View>
-    </View>
+    <ScreenWrapper noScroll renderFooter={renderFooter}>
+      <Loader loaded={joinSucceed}>
+        {() => (
+          <View style={{ flex: 1 }}>
+            <View style={styles.localVideoContainer}>
+              <RtcLocalView.SurfaceView
+                style={styles.remote}
+                channelId={channelName}
+                renderMode={VideoRenderMode.Hidden}
+                zOrderMediaOverlay={true}
+              />
+            </View>
+            {peerIds.map((value) => {
+              return (
+                <RtcRemoteView.SurfaceView
+                  style={{ width, height }}
+                  uid={value}
+                  channelId={channelName}
+                  renderMode={VideoRenderMode.Hidden}
+                  zOrderMediaOverlay={false}
+                />
+              );
+            })}
+          </View>
+        )}
+      </Loader>
+      <Snackbar />
+    </ScreenWrapper>
   );
 };
 
