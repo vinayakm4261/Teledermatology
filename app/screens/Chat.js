@@ -1,48 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Text, FlatList } from 'react-native';
-import { TextInput, FAB, IconButton } from 'react-native-paper';
+import { View, StyleSheet } from 'react-native';
+import { IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { GiftedChat } from 'react-native-gifted-chat';
 
-import { ScreenWrapper, Title } from '../components';
+import { Title } from '../components';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
-
-const styles = StyleSheet.create({
-  senderContainer: {
-    alignSelf: 'flex-end',
-    backgroundColor: '#EDEDED',
-    minHeight: 40,
-    maxWidth: 238,
-    padding: 10,
-    borderRadius: 8,
-    marginVertical: 2,
-    flexShrink: 1,
-  },
-  receiverContainer: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#eeeeee',
-    minHeight: 40,
-    maxWidth: 238,
-    padding: 10,
-    borderRadius: 8,
-    marginVertical: 2,
-    flexShrink: 1,
-  },
-  chatText: {
-    fontFamily: 'NotoSans-Regular',
-    fontSize: 14,
-    flexShrink: 1,
-  },
-  inputContainer: {
-    height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sendButton: {
-    backgroundColor: '#6C63FF',
-    elevation: 0,
-  },
-});
 
 const ChatScreen = ({
   navigation,
@@ -52,7 +15,7 @@ const ChatScreen = ({
   messages,
 }) => {
   const [message, setMessage] = useState('');
-  const [sending, setSending] = useState(false);
+  const [, setSending] = useState(false);
 
   const handleSendMessage = useCallback(() => {
     setSending(true);
