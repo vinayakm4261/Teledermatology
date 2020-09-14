@@ -8,7 +8,11 @@ import {
   otpSaga,
   registerSaga,
 } from './authSagas';
-import { loadPatientDataSaga, loadDoctorDataSaga } from './infoSagas';
+import {
+  loadPatientDataSaga,
+  loadDoctorDataSaga,
+  initVideoCallSaga,
+} from './infoSagas';
 
 export default function* rootSaga() {
   yield takeEvery('SET_AUTH.TRIGGER', authLoadedSaga);
@@ -19,4 +23,5 @@ export default function* rootSaga() {
   yield takeEvery('REGISTER_USER.TRIGGER', registerSaga);
   yield takeEvery('LOAD_PATIENT_DATA.TRIGGER', loadPatientDataSaga);
   yield takeEvery('LOAD_DOCTOR_DATA.TRIGGER', loadDoctorDataSaga);
+  yield takeEvery('INIT_VIDEO_CALL.TRIGGER', initVideoCallSaga);
 }
