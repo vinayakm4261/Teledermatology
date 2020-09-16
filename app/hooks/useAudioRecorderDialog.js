@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 
 import AudioRecorderDialog from '../components/AudioRecorderDialog';
 
@@ -13,7 +13,7 @@ const useAudioRecorderDialog = ({ onError, onRecorded } = {}) => {
     setDialogVisible(false);
   }, []);
 
-  const renderDialog = useCallback(
+  const dialog = useMemo(
     () => (
       <AudioRecorderDialog
         {...{
@@ -28,7 +28,7 @@ const useAudioRecorderDialog = ({ onError, onRecorded } = {}) => {
   );
 
   return {
-    Dialog: renderDialog,
+    dialog,
     showDialog,
   };
 };

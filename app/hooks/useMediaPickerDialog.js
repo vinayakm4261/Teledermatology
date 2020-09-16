@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 
 import MediaPickerDialog from '../components/MediaPickerDialog';
 
@@ -13,7 +13,7 @@ const useMediaPickerDialog = ({ onError, onPicked } = {}) => {
     setDialogVisible(false);
   }, []);
 
-  const renderDialog = useCallback(
+  const dialog = useMemo(
     () => (
       <MediaPickerDialog
         {...{
@@ -28,7 +28,7 @@ const useMediaPickerDialog = ({ onError, onPicked } = {}) => {
   );
 
   return {
-    Dialog: renderDialog,
+    dialog,
     showDialog,
   };
 };
