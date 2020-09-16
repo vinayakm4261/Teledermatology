@@ -11,7 +11,7 @@ export default function ({ children, style }) {
         lineHeight: 36,
         marginVertical: 8,
         letterSpacing: -0.5,
-        color: '#696969',
+        color: theme.colors.greyDark,
         ...theme.fonts.medium,
         ...style,
       }}>

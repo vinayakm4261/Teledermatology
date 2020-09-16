@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
 import { GiftedChat } from 'react-native-gifted-chat';

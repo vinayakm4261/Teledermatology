@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { View, TextInput as NativeTextInput } from 'react-native';
 import { useField } from 'formik';
-import { TextInput, Chip, useTheme, Button } from 'react-native-paper';
+import { TextInput, useTheme, Button } from 'react-native-paper';
 
 import Label from '../Typography/Label';
+import Chip from '../Chip';
 
 export default function ({
   name,
@@ -60,15 +61,7 @@ export default function ({
               paddingBottom: 0,
             }}>
             {value.map((chip, idx) => (
-              <Chip
-                key={chip}
-                disabled={disabled}
-                style={{
-                  margin: 2,
-                  borderRadius: 6,
-                  backgroundColor: '#ffffff',
-                }}
-                onClose={removeValue(idx)}>
+              <Chip key={chip} disabled={disabled} onClose={removeValue(idx)}>
                 {chip}
               </Chip>
             ))}
