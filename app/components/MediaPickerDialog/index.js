@@ -3,8 +3,7 @@ import { View } from 'react-native';
 import { FAB } from 'react-native-paper';
 import ImagePicker from 'react-native-image-crop-picker';
 
-import Label from '../Typography/Label';
-import Subheading from '../Typography/Subheading';
+import Caption from '../Typography/Caption';
 import BottomModal from '../BottomModal';
 import useAudioRecorderDialog from '../../hooks/useAudioRecorderDialog';
 
@@ -86,22 +85,22 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
     () => [
       {
         icon: 'camera',
-        label: 'PHOTO',
+        label: 'Photo',
         onPress: captureImage,
       },
       {
         icon: 'video',
-        label: 'VIDEO',
+        label: 'Video',
         onPress: captureVideo,
       },
       {
         icon: 'image',
-        label: 'GALLERY',
+        label: 'Gallery',
         onPress: selectFromGallery,
       },
       {
         icon: 'microphone',
-        label: 'VOICE',
+        label: 'Voice',
         onPress: audioRecorder.showDialog,
       },
     ],
@@ -115,7 +114,9 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
           {buttons.map(({ icon, label, onPress }) => (
             <View key={icon} style={styles.buttonContainer}>
               <FAB icon={icon} style={styles.button} onPress={onPress} />
-              <Label style={styles.bottonLabel}>{label}</Label>
+              <Caption small style={styles.bottonLabel}>
+                {label.toUpperCase()}
+              </Caption>
             </View>
           ))}
         </View>
