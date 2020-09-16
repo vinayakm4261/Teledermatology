@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 import { useTheme, Portal } from 'react-native-paper';
 import Modal from 'react-native-modal';
@@ -13,11 +13,10 @@ export default function ({ visible, onDismiss, onPicked, onError }) {
   const theme = useTheme();
   const {
     showDialog: showAudioRecorderDialog,
-    Dialog: AudioRecorderDialog,
+    dialog: audioRecorderDialog,
   } = useAudioRecorderDialog({
     onError,
     onRecorded: (file) => {
-      onDismiss();
       onPicked([{ uri: `file://${file}`, type: 'audio' }]);
     },
   });
@@ -123,7 +122,10 @@ export default function ({ visible, onDismiss, onPicked, onError }) {
                 compact
                 style={formStyles.inputRowRight}
                 icon="microphone"
-                onPress={showAudioRecorderDialog}
+                onPress={() => {
+                  onDismiss();
+                  showAudioRecorderDialog();
+                }}
                 mode="contained">
                 Voice
               </Button>
@@ -131,7 +133,7 @@ export default function ({ visible, onDismiss, onPicked, onError }) {
           </View>
         </Modal>
       </Portal>
-      <AudioRecorderDialog />
+      {audioRecorderDialog}
     </>
   );
 }

@@ -154,7 +154,7 @@ const NewAppointmentScreen = ({
           />
           <Button onPress={MediaPicker.showDialog}>Media Picker</Button>
         </View>
-        <MediaPicker.Dialog />
+        {MediaPicker.dialog}
         <Snackbar />
       </>
     </ScreenWrapper>

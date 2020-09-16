@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View } from 'react-native';
 import {
   Text,
@@ -15,6 +15,12 @@ import formStyles from '../../forms/styles';
 import useAudioRecorder from '../../hooks/useAudioRecorder';
 import useAudioPlayer from '../../hooks/useAudioPlayer';
 
+const stages = {
+  READY: 0,
+  RECORDING: 1,
+  PREVIEW: 2,
+};
+
 const AudioRecorderDialog = ({
   visible = true,
   onDismiss,
@@ -30,100 +36,19 @@ const AudioRecorderDialog = ({
     onError,
     onRecorded: (path) => {
       setFilepath(path);
-      setStage('PREVIEW');
+      setStage(stages.PREVIEW);
     },
     onRecordingStart: () => {
-      setStage('RECORDING');
+      setStage(stages.RECORDING);
     },
   });
   const player = useAudioPlayer(filepath, { onError });
 
-  const renderModalContent = () => {
-    if (stage === 'RECORDING')
-      return (
-        <>
-          <Subheading style={{ marginBottom: 12 }}>Recording</Subheading>
-          <View style={formStyles.inputRow}>
-            <Text style={formStyles.inputRowLeft}>Recording</Text>
-            <Button
-              compact
-              style={formStyles.inputRowRight}
-              theme={{ colors: { primary: '#c4001d' } }}
-              icon="stop"
-              onPress={recorder.endRecording}
-              mode="contained">
-              Stop
-            </Button>
-          </View>
-        </>
-      );
-
-    if (stage === 'PREVIEW') {
-      return (
-        <>
-          <Subheading style={{ marginBottom: 12 }}>Preview</Subheading>
-          <View style={formStyles.inputGroup}>
-            <ProgressBar progress={player.currentTime / player.duration} />
-            <IconButton
-              icon={player?.isPlaying ? 'stop' : 'play'}
-              onPress={() => {
-                if (player?.isPlaying) player.stop();
-                else player.play();
-              }}
-            />
-          </View>
-          <View style={formStyles.inputRow}>
-            <Button
-              compact
-              style={formStyles.inputRowLeft}
-              icon="restart"
-              onPress={() => {
-                player.stop();
-                setStage('READY');
-              }}
-              mode="outlined">
-              Retake
-            </Button>
-            <Button
-              compact
-              style={formStyles.inputRowRight}
-              icon="check"
-              onPress={() => {
-                onRecorded(filepath);
-                onDismiss();
-              }}
-              mode="contained">
-              Done
-            </Button>
-          </View>
-        </>
-      );
-    }
-
-    return (
-      <>
-        <Subheading style={{ marginBottom: 12 }}>Audio</Subheading>
-        <View style={formStyles.inputRow}>
-          <Button
-            compact
-            style={formStyles.inputRowLeft}
-            icon="close"
-            onPress={onDismiss}
-            mode="outlined">
-            Cancel
-          </Button>
-          <Button
-            compact
-            style={formStyles.inputRowRight}
-            icon="microphone"
-            onPress={recorder.startRecording}
-            mode="contained">
-            Record
-          </Button>
-        </View>
-      </>
-    );
-  };
+  const handleDismiss = useCallback(() => {
+    if (stage === stages.RECORDING) recorder.endRecording();
+    setStage(stages.READY);
+    onDismiss();
+  }, [stage, recorder, onDismiss]);
 
   return (
     <Portal>
@@ -138,10 +63,10 @@ const AudioRecorderDialog = ({
         }}
         isVisible={visible}
         swipeDirection={['down']}
-        onBackdropPress={onDismiss}
-        onBackButtonPress={onDismiss}
-        onModalHide={onDismiss}
-        onSwipeComplete={onDismiss}>
+        onBackdropPress={handleDismiss}
+        onBackButtonPress={handleDismiss}
+        onModalHide={handleDismiss}
+        onSwipeComplete={handleDismiss}>
         <View
           style={{
             margin: 8,
@@ -150,7 +75,83 @@ const AudioRecorderDialog = ({
             zIndex: 100,
             borderRadius: theme.roundness * 2,
           }}>
-          {renderModalContent()}
+          {stage === stages.RECORDING ? (
+            <>
+              <Subheading style={{ marginBottom: 12 }}>Recording</Subheading>
+              <View style={formStyles.inputRow}>
+                <Text style={formStyles.inputRowLeft}>Recording</Text>
+                <Button
+                  compact
+                  style={formStyles.inputRowRight}
+                  theme={{ colors: { primary: '#c4001d' } }}
+                  icon="stop"
+                  onPress={recorder.endRecording}
+                  mode="contained">
+                  Stop
+                </Button>
+              </View>
+            </>
+          ) : stage === stages.PREVIEW ? (
+            <>
+              <Subheading style={{ marginBottom: 12 }}>Preview</Subheading>
+              <View style={formStyles.inputGroup}>
+                <ProgressBar progress={player.currentTime / player.duration} />
+                <IconButton
+                  icon={player?.isPlaying ? 'stop' : 'play'}
+                  onPress={() => {
+                    if (player?.isPlaying) player.stop();
+                    else player.play();
+                  }}
+                />
+              </View>
+              <View style={formStyles.inputRow}>
+                <Button
+                  compact
+                  style={formStyles.inputRowLeft}
+                  icon="restart"
+                  onPress={() => {
+                    player.stop();
+                    setStage(stages.READY);
+                  }}
+                  mode="outlined">
+                  Retake
+                </Button>
+                <Button
+                  compact
+                  style={formStyles.inputRowRight}
+                  icon="check"
+                  onPress={() => {
+                    onRecorded(filepath);
+                    handleDismiss();
+                  }}
+                  mode="contained">
+                  Done
+                </Button>
+              </View>
+            </>
+          ) : (
+            <>
+              <Subheading style={{ marginBottom: 12 }}>Audio</Subheading>
+              <View style={formStyles.inputRow}>
+                <Button
+                  compact
+                  style={formStyles.inputRowLeft}
+                  icon="close"
+                  onPress={handleDismiss}
+                  mode="outlined">
+                  Cancel
+                </Button>
+                <Button
+                  compact
+                  style={formStyles.inputRowRight}
+                  icon="microphone"
+                  onPress={recorder.startRecording}
+                  mode="contained">
+                  Record
+                </Button>
+              </View>
+            </>
+          )}
         </View>
       </Modal>
     </Portal>
