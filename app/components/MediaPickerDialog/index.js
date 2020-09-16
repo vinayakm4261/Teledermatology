@@ -111,7 +111,6 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
   return (
     <>
       <BottomModal {...{ visible, onDismiss }}>
-        <Subheading>Select Media Type</Subheading>
         <View style={styles.buttonsGroup}>
           {buttons.map(({ icon, label, onPress }) => (
             <View key={icon} style={styles.buttonContainer}>
@@ -128,7 +127,7 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
 
 const styles = {
   buttonsGroup: {
-    marginBottom: 8,
+    margin: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
