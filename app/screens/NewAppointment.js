@@ -130,6 +130,7 @@ const NewAppointmentScreen = ({
           <ChippedTextInput
             name="symptoms"
             label="Symptoms"
+            placeholder="Type here"
             buttonProps={{
               mode: 'contained',
               theme: { colors: { primary: theme.colors.accent } },
