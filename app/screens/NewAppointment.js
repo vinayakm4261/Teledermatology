@@ -14,6 +14,7 @@ import {
   MediaUploaderInput,
   DateTimePicker,
   Label,
+  TextInput,
   ScreenWrapper,
 } from '../components';
 import formStyles from '../forms/styles';
@@ -21,8 +22,6 @@ import useFormSubmit from '../hooks/useFormSubmit';
 import useSnackbar from '../hooks/useSnackbar';
 import useScreenDimensions from '../hooks/useScreenDimensions';
 import { fetchDoctorsAction } from '../actions/infoActions';
-
-import useMediaPickerDialog from '../hooks/useMediaPickerDialog';
 
 const minimumDate = moment().add(1, 'd').toDate();
 const maximumDate = moment().add(31, 'd').toDate();
@@ -42,10 +41,6 @@ const NewAppointmentScreen = ({
   const theme = useTheme();
   const { width } = useScreenDimensions();
   const { Snackbar, showSnackbar } = useSnackbar();
-  const MediaPicker = useMediaPickerDialog({
-    onError: console.error,
-    onPicked: (x) => alert(JSON.stringify(x)),
-  });
 
   const onSubmit = useCallback(
     (submittedValues) => {
@@ -152,9 +147,16 @@ const NewAppointmentScreen = ({
             }}
             disabled={isSubmitting}
           />
-          <Button onPress={MediaPicker.showDialog}>Media Picker</Button>
+          <TextInput
+            multiline
+            name="additionalInfo"
+            label="Additional Info"
+            placeholder=""
+            numberOfLines={3}
+            disabled={isSubmitting}
+            returnKeyType="done"
+          />
         </View>
-        {MediaPicker.dialog}
         <Snackbar />
       </>
     </ScreenWrapper>
@@ -183,6 +185,7 @@ const validation = yup.object().shape({
       uri: yup.string(),
     }),
   ),
+  additionalInfo: yup.string(),
 });
 
 const initialValues = () => ({
@@ -190,6 +193,7 @@ const initialValues = () => ({
   time: moment('10:00AM', 'hh:mmA').toDate(),
   symptoms: [],
   media: [],
+  additionalInfo: '',
 });
 
 const mapStateToProps = (state) => ({

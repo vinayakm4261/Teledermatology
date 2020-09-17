@@ -13,9 +13,11 @@ export default function ({ children, name, label = '', style = {}, ...props }) {
       <TextInput
         mode="flat"
         dense={true}
-        style={{
-          height: 48,
-        }}
+        style={
+          !props.multiline && {
+            height: 48,
+          }
+        }
         error={touched && error}
         onChangeText={onChange(name)}
         onBlur={onBlur(name)}
