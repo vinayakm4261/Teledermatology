@@ -8,7 +8,7 @@ import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
 import requestAPI from '../helpers/requestAPI';
 
-import { PATIENT_DATA_LOADED, DOCTORS_FETCHED } from '../actions/infoActions';
+import { PATIENT_DATA_LOADED } from '../actions/infoActions';
 
 function* loadPatientDataSaga(action) {
   try {
@@ -82,7 +82,7 @@ function* fetchDoctorsSaga(action) {
     if (error) {
       yield call(rejectPromiseAction, action, error);
     } else {
-      yield put({ type: DOCTORS_FETCHED, payload: { doctors: response } });
+      yield call(resolvePromiseAction, action, response);
     }
   } catch (err) {
     console.log(err);
