@@ -2,7 +2,6 @@ import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import { useTheme } from 'react-native-paper';
-import { connect } from 'react-redux';
 
 import { withFormik } from 'formik';
 import * as yup from 'yup';
@@ -17,11 +16,11 @@ import {
   TextInput,
   ScreenWrapper,
 } from '../components';
+import DoctorPicker from '../components/DoctorPicker';
 import formStyles from '../forms/styles';
 import useFormSubmit from '../hooks/useFormSubmit';
 import useSnackbar from '../hooks/useSnackbar';
 import useScreenDimensions from '../hooks/useScreenDimensions';
-import { fetchDoctorsAction } from '../actions/infoActions';
 
 const minimumDate = moment().add(1, 'd').toDate();
 const maximumDate = moment().add(31, 'd').toDate();
@@ -36,7 +35,6 @@ const NewAppointmentScreen = ({
   // Screen props
   navigation,
   newAppointment,
-  fetchDoctors,
 }) => {
   const theme = useTheme();
   const { width } = useScreenDimensions();
@@ -111,6 +109,7 @@ const NewAppointmentScreen = ({
       }}>
       <>
         <View style={formStyles.inputGroup}>
+          <DoctorPicker name="doctorId" />
           <Label>Timings</Label>
           <View style={formStyles.inputRow}>
             <DateTimePicker
@@ -173,6 +172,7 @@ NewAppointmentScreen.propTypes = {
 };
 
 const validation = yup.object().shape({
+  doctorId: yup.string(),
   date: yup
     .date()
     .min(minimumDate)
@@ -190,6 +190,7 @@ const validation = yup.object().shape({
 });
 
 const initialValues = () => ({
+  doctorId: null,
   date: moment().add(7, 'd').toDate(),
   time: moment('10:00AM', 'hh:mmA').toDate(),
   symptoms: [],
@@ -197,21 +198,8 @@ const initialValues = () => ({
   additionalInfo: '',
 });
 
-const mapStateToProps = (state) => ({
-  doctors: state.infoReducer.doctors,
-});
-
-const mapDispatchToProps = (dispatch) => ({
-  fetchDoctors: (text) => dispatch(fetchDoctorsAction(text)),
-});
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(
-  withFormik({
-    displayName: 'NewAppointmentForm',
-    validationSchema: validation,
-    mapPropsToValues: initialValues,
-  })(NewAppointmentScreen),
-);
+export default withFormik({
+  displayName: 'NewAppointmentForm',
+  validationSchema: validation,
+  mapPropsToValues: initialValues,
+})(NewAppointmentScreen);
