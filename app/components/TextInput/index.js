@@ -5,16 +5,24 @@ import { TextInput } from 'react-native-paper';
 
 import Label from '../Typography/Label';
 
-export default function ({ children, name, label = '', style = {}, ...props }) {
+export default function ({
+  children,
+  name,
+  label = '',
+  style = {},
+  multiline = false,
+  ...props
+}) {
   const [{ value, onChange, onBlur }, { touched, error }] = useField(name);
   return (
     <View style={style}>
       {!!label && <Label>{label}</Label>}
       <TextInput
+        multiline={multiline}
         mode="flat"
         dense={true}
         style={
-          !props.multiline && {
+          !multiline && {
             height: 48,
           }
         }
