@@ -206,7 +206,7 @@ function* fetchDoctorsSaga(action) {
     if (error) {
       yield call(rejectPromiseAction, action, error);
     } else {
-      yield put({ type: DOCTORS_FETCHED, payload: { doctors: response } });
+      yield call(resolvePromiseAction, action, response);
     }
   } catch (err) {
     console.log(err);
