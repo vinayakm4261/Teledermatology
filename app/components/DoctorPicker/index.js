@@ -1,6 +1,13 @@
 import React, { useCallback, useState, useRef, useEffect } from 'react';
 import { View } from 'react-native';
-import { useTheme, Portal, Searchbar, Card, Avatar } from 'react-native-paper';
+import {
+  Portal,
+  Searchbar,
+  Card,
+  Avatar,
+  ActivityIndicator,
+  IconButton,
+} from 'react-native-paper';
 import Modal from 'react-native-modal';
 import { useField } from 'formik';
 import { connect } from 'react-redux';
@@ -8,18 +15,25 @@ import { connect } from 'react-redux';
 import Button from '../Button';
 
 import { fetchDoctorsAction } from '../../actions/infoActions';
+import Label from '../Typography/Label';
 
 const DoctorPicker = ({ name, disabled = false, style = {} }) => {
-  const [{ value }, { touched, error }, { setValue, setTouched }] = useField(
-    name,
-  );
+  const [{ value }, , { setValue, setTouched }] = useField(name);
   const [selectorDialogVisible, setSelectorDialogVisible] = useState(false);
   const [selectedMetadata, setSelectedMetadata] = useState(null);
 
-  const dismissSelectorDialog = useCallback(
-    () => setSelectorDialogVisible(false),
-    [],
-  );
+  const showSelectorDialog = useCallback(() => {
+    setSelectorDialogVisible(true);
+  }, []);
+
+  const dismissSelectorDialog = useCallback(() => {
+    setSelectorDialogVisible(false);
+  }, []);
+
+  const clearValue = useCallback(() => {
+    setValue(null);
+    setSelectedMetadata(null);
+  }, [setValue]);
 
   const handleValueChange = useCallback(
     (newValue) => {
@@ -29,13 +43,9 @@ const DoctorPicker = ({ name, disabled = false, style = {} }) => {
     [setTouched, setValue],
   );
 
-  const showDoctorPicker = () => {
-    setSelectorDialogVisible(true);
-  };
-
   return (
     <>
-      <View style={style}>
+      <View style={[{ marginTop: 12 }, style]}>
         {!!selectedMetadata && (
           <Card
             style={{
@@ -53,16 +63,26 @@ const DoctorPicker = ({ name, disabled = false, style = {} }) => {
                 title: selectedMetadata.name,
                 subtitle: `${selectedMetadata.hospital}, ${selectedMetadata.department}`,
               }}
+              right={(props) => (
+                <IconButton
+                  icon="close"
+                  onPress={clearValue}
+                  {...props}
+                  size={18}
+                  color="#aaaaaa"
+                />
+              )}
             />
           </Card>
         )}
-        <Button
-          compact
-          mode="outlined"
-          disabled={disabled}
-          onPress={showDoctorPicker}>
-          {!value ? 'Select Doctor' : 'Change Doctor'}
-        </Button>
+        {!value && (
+          <Button
+            mode="outlined"
+            disabled={disabled}
+            onPress={showSelectorDialog}>
+            Select Doctor
+          </Button>
+        )}
       </View>
       <DoctorPickerModal
         visible={selectorDialogVisible}
@@ -76,24 +96,42 @@ const DoctorPicker = ({ name, disabled = false, style = {} }) => {
   );
 };
 
-const mapStateToProps = (state) => ({
-  doctors: state.infoReducer.doctors,
-});
-
 const mapDispatchToProps = (dispatch) => ({
   fetchDoctors: (text) => dispatch(fetchDoctorsAction(text)),
 });
 
 const DoctorPickerModal = connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps,
-)(({ doctors, fetchDoctors, visible, onDismiss, onSelected }) => {
+)(({ fetchDoctors, visible, onDismiss, onSelected }) => {
   const searchBarRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const dedupCounter = useRef(0);
 
   useEffect(() => {
-    fetchDoctors(searchQuery);
+    const query = searchQuery.trim();
+    if (query !== '') {
+      setLoading(true);
+      const currentDedupCounter = ++dedupCounter.current;
+      fetchDoctors(query).then((res) => {
+        if (currentDedupCounter === dedupCounter.current) {
+          setDoctors(res);
+          setLoading(false);
+        }
+      });
+    } else {
+      setDoctors([]);
+    }
   }, [searchQuery, fetchDoctors]);
+
+  const handleDismiss = useCallback(() => {
+    setSearchQuery('');
+    setLoading(false);
+    setDoctors([]);
+    onDismiss();
+  }, [onDismiss]);
 
   return (
     <Portal>
@@ -112,39 +150,51 @@ const DoctorPickerModal = connect(
         onModalShow={() => {
           searchBarRef.current.focus();
         }}
-        onBackdropPress={onDismiss}
-        onBackButtonPress={onDismiss}
-        onModalHide={onDismiss}>
+        onBackdropPress={handleDismiss}
+        onBackButtonPress={handleDismiss}
+        onModalHide={handleDismiss}>
         <Searchbar
           placeholder="Search Doctors"
           value={searchQuery}
           onChangeText={setSearchQuery}
-          style={{ margin: 12 }}
+          style={{ margin: 12, marginBottom: 8 }}
           ref={(ref) => {
             searchBarRef.current = ref;
           }}
         />
         <View
           style={{ flexGrow: 1, paddingHorizontal: 12, paddingVertical: 0 }}>
-          {doctors.map(({ _id, name, profilePic, hospital, department }) => (
-            <Card
-              style={{
-                marginVertical: 4,
-              }}
-              onPress={() => {
-                onSelected({ _id, name, hospital, department, profilePic });
-                setSearchQuery('');
-                onDismiss();
-              }}
-              theme={{ roundness: 8 }}>
-              <Card.Title
-                left={(props) => (
-                  <Avatar.Image {...props} source={{ uri: profilePic }} />
-                )}
-                {...{ title: name, subtitle: `${hospital}, ${department}` }}
-              />
-            </Card>
-          ))}
+          {loading ? (
+            <View style={{ padding: 24, alignItems: 'center' }}>
+              <ActivityIndicator color="white" />
+            </View>
+          ) : !doctors.length ? (
+            searchQuery.trim() !== '' && (
+              <View style={{ padding: 24, alignItems: 'center' }}>
+                <Label>No matches found</Label>
+              </View>
+            )
+          ) : (
+            doctors.map(({ _id, name, profilePic, hospital, department }) => (
+              <Card
+                key={_id}
+                style={{
+                  marginVertical: 4,
+                }}
+                onPress={() => {
+                  onSelected({ _id, name, hospital, department, profilePic });
+                  handleDismiss();
+                }}
+                theme={{ roundness: 8 }}>
+                <Card.Title
+                  left={(props) => (
+                    <Avatar.Image {...props} source={{ uri: profilePic }} />
+                  )}
+                  {...{ title: name, subtitle: `${hospital}, ${department}` }}
+                />
+              </Card>
+            ))
+          )}
         </View>
       </Modal>
     </Portal>
