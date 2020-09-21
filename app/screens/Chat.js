@@ -1,11 +1,53 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { connect } from 'react-redux';
-import { GiftedChat } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 
 import { Title } from '../components';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
+
+const CustomBubble = (props) => {
+  return (
+    <Bubble
+      {...props}
+      wrapperStyle={{
+        right: {
+          backgroundColor: '#6C63FF',
+        },
+        left: {
+          backgroundColor: '#ddd',
+        },
+      }}
+    />
+  );
+};
+
+const CustomInput = (props) => {
+  return (
+    <InputToolbar
+      {...props}
+      containerStyle={{
+        borderWidth: 2,
+        borderColor: 'white',
+        borderRadius: 100,
+      }}
+    />
+  );
+};
+
+const CustomAction = (props) => {
+  return (
+    <IconButton
+      name="paperclip"
+      color="#eee"
+      size={20}
+      onPress={() => {
+        alert('Hello!');
+      }}
+    />
+  );
+};
 
 const ChatScreen = ({
   navigation,
@@ -51,6 +93,9 @@ const ChatScreen = ({
           setMessage(text);
         }}
         user={{ _id: userID }}
+        renderBubble={CustomBubble}
+        renderInputToolbar={CustomInput}
+        renderActions={CustomAction}
       />
     </>
   );
