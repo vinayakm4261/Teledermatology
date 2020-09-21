@@ -9,7 +9,7 @@ export default function ({ children, style }) {
       style={{
         fontSize: 18,
         lineHeight: 24,
-        color: '#4B45B2',
+        color: theme.colors.primaryDark,
         ...theme.fonts.medium,
         ...style,
       }}>

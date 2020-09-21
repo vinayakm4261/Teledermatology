@@ -14,6 +14,7 @@ import {
   initChatWatcher,
   sendMessageWatcher,
 } from './chatSagas';
+import { loadPatientDataSaga, loadDoctorDataSaga } from './infoSagas';
 
 export default function* rootSaga() {
   yield takeEvery('SET_AUTH.TRIGGER', authLoadedSaga);
@@ -26,4 +27,6 @@ export default function* rootSaga() {
   yield takeEvery('INIT_CHAT.TRIGGER', initChatWatcher);
   yield takeEvery('SEND_MESSAGE.TRIGGER', sendMessageWatcher);
   yield takeEvery('SIGN_OUT_USER.TRIGGER', signOutSaga);
+  yield takeEvery('LOAD_PATIENT_DATA.TRIGGER', loadPatientDataSaga);
+  yield takeEvery('LOAD_DOCTOR_DATA.TRIGGER', loadDoctorDataSaga);
 }

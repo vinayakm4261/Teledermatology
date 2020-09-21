@@ -40,7 +40,17 @@ const theme = {
   colors: {
     ...DefaultTheme.colors,
     primary: '#6C63FF',
+    primaryDark: '#4B45B2',
     accent: '#FF7364',
+    greyDark: '#696969',
+    grey: '#AAAAAA',
+    greyLight: '#B2B2B2',
+    greyPrimary: '#3F3D56',
+    status: {
+      PENDING: '#4B45B2',
+      ACCEPTED: '#00B090',
+      REJECTED: '#B00020',
+    },
   },
 };
 
