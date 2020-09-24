@@ -12,6 +12,7 @@ import {
   loadPatientDataSaga,
   loadDoctorDataSaga,
   fetchDoctorsSaga,
+  newAppointmentSaga,
 } from './infoSagas';
 
 export default function* rootSaga() {
@@ -24,4 +25,5 @@ export default function* rootSaga() {
   yield takeEvery('LOAD_PATIENT_DATA.TRIGGER', loadPatientDataSaga);
   yield takeEvery('LOAD_DOCTOR_DATA.TRIGGER', loadDoctorDataSaga);
   yield takeEvery('FETCH_DOCTORS.TRIGGER', fetchDoctorsSaga);
+  yield takeEvery('NEW_APPOINTMENT.TRIGGER', newAppointmentSaga);
 }

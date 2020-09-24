@@ -1,6 +1,7 @@
 import {
   PATIENT_DATA_LOADED,
   DOCTOR_DATA_LOADED,
+  NEW_APPOINTMENT_DONE,
 } from '../actions/infoActions';
 
 const initialState = {
@@ -22,6 +23,11 @@ const reducer = (state = initialState, action) => {
         ...state,
         dataLoaded: true,
         appointments: action.payload.appointments,
+      };
+    case NEW_APPOINTMENT_DONE:
+      return {
+        ...state,
+        appointments: [...state.appointments, action.payload.appointment],
       };
     default:
       return state;

@@ -7,3 +7,6 @@ export const DOCTOR_DATA_LOADED = 'DOCTOR_DATA_LOADED';
 export const loadDoctorDataAction = createPromiseAction('LOAD_DOCTOR_DATA');
 
 export const fetchDoctorsAction = createPromiseAction('FETCH_DOCTORS');
+
+export const NEW_APPOINTMENT_DONE = 'NEW_APPOINTMENT_DONE';
+export const newAppointmentAction = createPromiseAction('NEW_APPOINTMENT');

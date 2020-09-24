@@ -3,12 +3,20 @@ import {
   resolvePromiseAction,
   rejectPromiseAction,
 } from '@adobe/redux-saga-promise';
+import RNFetchBlob from 'rn-fetch-blob';
 
 import errorTypes from '../constants/errorTypes';
 import defaultDict from '../helpers/defaultDict';
 import requestAPI from '../helpers/requestAPI';
+import mediaUploader from '../helpers/mediaUploader';
 
-import { PATIENT_DATA_LOADED } from '../actions/infoActions';
+import {
+  NEW_APPOINTMENT_DONE,
+  PATIENT_DATA_LOADED,
+} from '../actions/infoActions';
+
+const retrieveToken = (authProvider) =>
+  authProvider.currentUser.getIdToken(true);
 
 function* loadPatientDataSaga(action) {
   try {
@@ -92,4 +100,98 @@ function* fetchDoctorsSaga(action) {
   }
 }
 
-export { loadPatientDataSaga, loadDoctorDataSaga, fetchDoctorsSaga };
+function* newAppointmentSaga(action) {
+  try {
+    const appointmentData = action.payload;
+
+    const sendData = [];
+
+    Object.entries(appointmentData).forEach(([field, data]) => {
+      switch (field) {
+        case 'symptoms':
+          if (data.length > 0) {
+            data.forEach((symptom) =>
+              sendData.push({ name: 'symptoms[]', data: symptom }),
+            );
+          }
+          break;
+        case 'media':
+          if (data.length > 0) {
+            data.forEach(({ type, uri }, index) => {
+              switch (type) {
+                case 'image':
+                  sendData.push({
+                    name: 'photos',
+                    filename: `image-${index}.jpg`,
+                    type: 'image/jpeg',
+                    data: RNFetchBlob.wrap(uri),
+                  });
+                  break;
+                case 'video':
+                  sendData.push({
+                    name: 'videos',
+                    filename: `video-${index}.mp4`,
+                    type: 'video/mp4',
+                    data: RNFetchBlob.wrap(uri),
+                  });
+                  break;
+                case 'audio':
+                  sendData.push({
+                    name: 'audio',
+                    filename: `audio-${index}.aac`,
+                    type: 'audio/aac',
+                    data: RNFetchBlob.wrap(uri),
+                  });
+              }
+            });
+          }
+          break;
+        default:
+          sendData.push({ name: field, data: String(data) });
+          break;
+      }
+    });
+
+    const { auth, patientID } = yield select((state) => ({
+      auth: state.authReducer.auth,
+      patientID: state.authReducer.userData._id,
+    }));
+
+    sendData.push({ name: 'patientID', data: patientID });
+
+    const authToken = yield call(retrieveToken, auth);
+
+    const { response, error } = yield call(
+      mediaUploader,
+      'PUT',
+      'https://teledermatology.herokuapp.com/patient/newAppointment',
+      authToken,
+      sendData,
+    );
+
+    console.log('Response', response);
+    console.log('Error', error);
+
+    if (error) {
+      yield call(rejectPromiseAction, action, error);
+    } else {
+      yield put({
+        type: NEW_APPOINTMENT_DONE,
+        payload: { appointment: response.appointment },
+      });
+      yield call(resolvePromiseAction, action, {});
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
+export {
+  loadPatientDataSaga,
+  loadDoctorDataSaga,
+  fetchDoctorsSaga,
+  newAppointmentSaga,
+};
