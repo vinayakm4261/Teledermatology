@@ -2,6 +2,7 @@ import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
 import { useTheme } from 'react-native-paper';
+import { connect } from 'react-redux';
 
 import { withFormik } from 'formik';
 import * as yup from 'yup';
@@ -21,6 +22,7 @@ import formStyles from '../forms/styles';
 import useFormSubmit from '../hooks/useFormSubmit';
 import useSnackbar from '../hooks/useSnackbar';
 import useScreenDimensions from '../hooks/useScreenDimensions';
+import { newAppointmentAction } from '../actions/infoActions';
 
 const minimumDate = moment().add(1, 'd').toDate();
 const maximumDate = moment().add(31, 'd').toDate();
@@ -43,8 +45,7 @@ const NewAppointmentScreen = ({
   const onSubmit = useCallback(
     (submittedValues) => {
       alert(`Submitting:\n ${JSON.stringify(submittedValues)}`);
-      newAppointment && newAppointment(submittedValues);
-      return Promise.resolve();
+      return newAppointment && newAppointment(submittedValues);
     },
     [newAppointment],
   );
@@ -53,7 +54,7 @@ const NewAppointmentScreen = ({
     values,
     setSubmitting,
     onSubmit,
-    onSubmitSuccess: navigation.goBack,
+    // onSubmitSuccess: navigation.goBack,
     onSubmitFail: showSnackbar,
   });
 
@@ -109,7 +110,7 @@ const NewAppointmentScreen = ({
       }}>
       <>
         <View style={formStyles.inputGroup}>
-          <DoctorPicker name="doctorId" />
+          <DoctorPicker name="doctorID" />
           <Label>Timings</Label>
           <View style={formStyles.inputRow}>
             <DateTimePicker
@@ -168,11 +169,10 @@ NewAppointmentScreen.propTypes = {
   navigation: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
   }).isRequired,
-  fetchDoctors: PropTypes.func.isRequired,
 };
 
 const validation = yup.object().shape({
-  doctorId: yup.string(),
+  doctorID: yup.string(),
   date: yup
     .date()
     .min(minimumDate)
@@ -190,7 +190,7 @@ const validation = yup.object().shape({
 });
 
 const initialValues = () => ({
-  doctorId: null,
+  doctorID: null,
   date: moment().add(7, 'd').toDate(),
   time: moment('10:00AM', 'hh:mmA').toDate(),
   symptoms: [],
@@ -198,8 +198,17 @@ const initialValues = () => ({
   additionalInfo: '',
 });
 
-export default withFormik({
-  displayName: 'NewAppointmentForm',
-  validationSchema: validation,
-  mapPropsToValues: initialValues,
-})(NewAppointmentScreen);
+const mapDispatchToProps = (dispatch) => ({
+  newAppointment: (payload) => dispatch(newAppointmentAction(payload)),
+});
+
+export default connect(
+  null,
+  mapDispatchToProps,
+)(
+  withFormik({
+    displayName: 'NewAppointmentForm',
+    validationSchema: validation,
+    mapPropsToValues: initialValues,
+  })(NewAppointmentScreen),
+);

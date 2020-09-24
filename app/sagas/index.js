@@ -15,6 +15,7 @@ import {
   patientProfileEditSaga,
   doctorProfileEditSaga,
   fetchDoctorsSaga,
+  newAppointmentSaga,
 } from './infoSagas';
 
 export default function* rootSaga() {
@@ -30,4 +31,5 @@ export default function* rootSaga() {
   yield takeEvery('PATIENT_PROFILE_EDIT.TRIGGER', patientProfileEditSaga);
   yield takeEvery('DOCTOR_PROFILE_EDIT.TRIGGER', doctorProfileEditSaga);
   yield takeEvery('FETCH_DOCTORS.TRIGGER', fetchDoctorsSaga);
+  yield takeEvery('NEW_APPOINTMENT.TRIGGER', newAppointmentSaga);
 }
