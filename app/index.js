@@ -51,6 +51,7 @@ const theme = {
       ACCEPTED: '#00B090',
       REJECTED: '#B00020',
     },
+    background: '#FAFAFA',
   },
 };
 
