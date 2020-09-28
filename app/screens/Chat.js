@@ -10,7 +10,7 @@ import {
 } from 'react-native-gifted-chat';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import { ScreenWrapper } from '../components';
+import { ChatVideo, ScreenWrapper } from '../components';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
 
 const ChatScreen = ({
@@ -20,9 +20,9 @@ const ChatScreen = ({
   userID,
   messages,
 }) => {
+  const theme = useTheme();
   const [message, setMessage] = useState('');
   const [, setSending] = useState(false);
-  const theme = useTheme();
 
   const header = useMemo(
     () => ({
@@ -92,6 +92,10 @@ const ChatScreen = ({
     },
     [theme.colors.surface],
   );
+
+  const renderMessageVideo = useCallback((messageVideoProps) => {
+    return <ChatVideo {...messageVideoProps} />;
+  }, []);
 
   const renderBubble = useCallback(
     (bubbleProps) => {
@@ -182,6 +186,7 @@ const ChatScreen = ({
         }}
         user={{ _id: userID }}
         renderBubble={renderBubble}
+        renderMessageVideo={renderMessageVideo}
         renderInputToolbar={renderInputToolbar}
         renderActions={renderMediaAction}
         renderSend={renderSend}
@@ -204,6 +209,8 @@ const ChatScreen = ({
         textInputProps={{
           autoCapitalize: 'sentences',
         }}
+        imageStyle={{ borderRadius: 10 }}
+        lightboxProps={{ underlayColor: '#F1F1F1' }}
         alwaysShowSend
         scrollToBottom
         minInputToolbarHeight={56}

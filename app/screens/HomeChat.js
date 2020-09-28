@@ -1,13 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { connect } from 'react-redux';
 
 import { ScreenWrapper, Button, Title } from '../components';
 import { setDatabaseAction, initChatAction } from '../actions/chatActions';
 import { signOutAction } from '../actions/authActions';
-
-const styles = StyleSheet.create({});
 
 const HomeScreen = ({ navigation, auth, setDatabase, initChat, signOut }) => {
   const theme = useTheme();
@@ -65,6 +63,7 @@ const HomeScreen = ({ navigation, auth, setDatabase, initChat, signOut }) => {
         <Button
           mode="contained"
           dark
+          style={{ marginBottom: 16 }}
           color={theme.colors.accent}
           onPress={handleSignOut}>
           Sign Out

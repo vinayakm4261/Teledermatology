@@ -14,6 +14,7 @@ import Chip from './Chip';
 import Appbar from './Appbar';
 import Loader from './Loader';
 import AppointmentCard from './AppointmentCard';
+import ChatVideo from './ChatVideo';
 
 export {
   ScreenWrapper,
@@ -32,4 +33,5 @@ export {
   Appbar,
   Loader,
   AppointmentCard,
+  ChatVideo,
 };
