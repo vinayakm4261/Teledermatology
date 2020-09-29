@@ -43,25 +43,25 @@ export default function ({
 
   const onMediaPicked = useCallback(
     (media) => {
-      let newMediaTypeCounter = mediaTypeCounter;
+      const newMediaTypeCounter = mediaTypeCounter;
       changeValue([
         ...value,
-        ...media.map(({ type, uri }) => ({
+        ...media.map(({ type, ...rest }) => ({
           type,
-          uri,
           name: `${type.charAt(0).toUpperCase()}${type
             .substr(1)
             .toLowerCase()} ${++newMediaTypeCounter[type]}`,
+          ...rest,
         })),
       ]);
       setMediaTypeCounter(newMediaTypeCounter);
     },
-    [changeValue, mediaTypeCounter],
+    [value, changeValue, mediaTypeCounter],
   );
 
   const onError = useCallback(() => {
     showSnackbar('An error occurred.');
-  });
+  }, [showSnackbar]);
 
   const mediaPicker = useMediaPickerDialog({
     onError,

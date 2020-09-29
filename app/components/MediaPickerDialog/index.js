@@ -19,9 +19,7 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
   );
 
   const handleAudioRecorded = useCallback(
-    (file) => {
-      handlePicked([{ uri: `file://${file}`, type: 'audio' }]);
-    },
+    (file) => handlePicked([{ uri: `file://${file}`, type: 'audio' }]),
     [handlePicked],
   );
 
@@ -32,35 +30,33 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
 
   const captureImage = useCallback(() => {
     ImagePicker.openCamera({
-      multiple: true,
       compressImageQuality: 0.75,
       mediaType: 'photo',
       cropping: true,
     })
-      .then((images) => {
-        handlePicked(
-          images.map((image) => ({
+      .then((image) =>
+        handlePicked([
+          {
+            mime: image.mime,
             uri: image.path,
             type: 'image',
-          })),
-        );
-      })
+          },
+        ]),
+      )
       .catch(noOp);
   }, [handlePicked]);
 
   const captureVideo = useCallback(() => {
-    ImagePicker.openCamera({
-      multiple: true,
-      mediaType: 'video',
-    })
-      .then((videos) => {
-        handlePicked(
-          videos.map((video) => ({
+    ImagePicker.openCamera({ mediaType: 'video' })
+      .then((video) =>
+        handlePicked([
+          {
+            mime: video.mime,
             uri: video.path,
             type: 'video',
-          })),
-        );
-      })
+          },
+        ]),
+      )
       .catch(noOp);
   }, [handlePicked]);
 
@@ -73,6 +69,7 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
       .then((files) => {
         handlePicked(
           files.map((file) => ({
+            mime: file.mime,
             uri: file.path,
             type: file.mime.split('/')[0],
           })),
