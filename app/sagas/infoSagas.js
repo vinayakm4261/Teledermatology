@@ -104,6 +104,8 @@ function* newAppointmentSaga(action) {
   try {
     const appointmentData = action.payload;
 
+    console.log(appointmentData);
+
     const sendData = [];
 
     Object.entries(appointmentData).forEach(([field, data]) => {
@@ -117,21 +119,21 @@ function* newAppointmentSaga(action) {
           break;
         case 'media':
           if (data.length > 0) {
-            data.forEach(({ type, uri }, index) => {
+            data.forEach(({ type, uri, mime }, index) => {
               switch (type) {
                 case 'image':
                   sendData.push({
                     name: 'photos',
-                    filename: `image-${index}.jpg`,
-                    type: 'image/jpeg',
+                    filename: `image-${index}.${mime.split('/')[1]}`,
+                    type: mime,
                     data: RNFetchBlob.wrap(uri),
                   });
                   break;
                 case 'video':
                   sendData.push({
                     name: 'videos',
-                    filename: `video-${index}.mp4`,
-                    type: 'video/mp4',
+                    filename: `video-${index}.${mime.split('/')[1]}`,
+                    type: mime,
                     data: RNFetchBlob.wrap(uri),
                   });
                   break;
@@ -158,6 +160,8 @@ function* newAppointmentSaga(action) {
     }));
 
     sendData.push({ name: 'patientID', data: patientID });
+
+    console.log(sendData);
 
     const authToken = yield call(retrieveToken, auth);
 
