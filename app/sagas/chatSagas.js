@@ -35,14 +35,30 @@ const checkChatNode = (reference, path) =>
       error: { type: databaseErrorMap[err.code] },
     }));
 
-const createChatNode = (
+const createChatNode = (reference, path) => {
+  const createRef = reference.child(path).push();
+
+  const data = {
+    _id: createRef.key,
+    text: 'Discuss with your doctor over messages',
+    createdAt: Date.now(),
+    system: true,
+  };
+
+  return createRef
+    .set(data)
+    .then(() => ({ message: { [createRef.key]: { ...data } }, error: null }))
+    .catch((err) => ({ message: null, error: databaseErrorMap[err.code] }));
+};
+
+const sendMessage = (
   reference,
   path,
   author,
   name,
   profilePic,
-  receiver,
-  text = 'Chat Init',
+  text = '',
+  media = [],
 ) => {
   const createRef = reference.child(path).push();
 
@@ -97,12 +113,7 @@ function* initChatSaga(action) {
   try {
     const { appointmentID, receiverID } = action.payload;
 
-    const { ref, userID, name, profilePic } = yield select((state) => ({
-      ref: state.chatReducer.database,
-      userID: state.authReducer.userData._id,
-      name: state.authReducer.userData.name,
-      profilePic: state.authReducer.userData.profilePic,
-    }));
+    const ref = yield select((state) => state.chatReducer.database);
 
     const { snapshot, error } = yield call(checkChatNode, ref, appointmentID);
 
@@ -133,10 +144,6 @@ function* initChatSaga(action) {
           createChatNode,
           ref,
           appointmentID,
-          userID,
-          name,
-          profilePic,
-          receiverID,
         );
 
         if (error2) {
@@ -180,12 +187,11 @@ function* initChatWatcher(action) {
 
 function* sendMessageSaga(action) {
   try {
-    const text = action.payload;
+    const { text, media = [] } = action.payload;
 
     const {
       ref,
       userID,
-      receiverID,
       appointmentID,
       chats,
       name,
@@ -194,7 +200,6 @@ function* sendMessageSaga(action) {
       ref: state.chatReducer.database,
       appointmentID: state.chatReducer.appointmentID,
       userID: state.authReducer.userData._id,
-      receiverID: state.chatReducer.receiverID,
       chats: state.chatReducer.chats,
       name: state.authReducer.userData.name,
       profilePic: state.authReducer.userData.profilePic,
@@ -207,14 +212,14 @@ function* sendMessageSaga(action) {
       });
     } else {
       const { message, error } = yield call(
-        createChatNode,
+        sendMessage,
         ref,
         appointmentID,
         userID,
         name,
         profilePic,
-        receiverID,
         text,
+        media,
       );
 
       if (error) {

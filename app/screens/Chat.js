@@ -1,6 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View } from 'react-native';
-import { FAB, IconButton, useTheme } from 'react-native-paper';
+import {
+  ActivityIndicator,
+  FAB,
+  IconButton,
+  useTheme,
+} from 'react-native-paper';
 import { connect } from 'react-redux';
 import {
   GiftedChat,
@@ -11,7 +16,11 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 import { ChatVideo, ScreenWrapper } from '../components';
+
+import useMediaPickerDialog from '../hooks/useMediaPickerDialog';
+import useSnackbar from '../hooks/useSnackbar';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
+import BottomModal from '../components/BottomModal';
 
 const ChatScreen = ({
   navigation,
@@ -22,7 +31,12 @@ const ChatScreen = ({
 }) => {
   const theme = useTheme();
   const [message, setMessage] = useState('');
-  const [, setSending] = useState(false);
+  const [sending, setSending] = useState(false);
+  const { showSnackbar, Snackbar } = useSnackbar();
+
+  const onError = useCallback(() => {
+    showSnackbar('An error occurred.');
+  }, [showSnackbar]);
 
   const header = useMemo(
     () => ({
@@ -42,13 +56,31 @@ const ChatScreen = ({
 
   const handleSendMessage = useCallback(() => {
     setSending(true);
-    sendMessage(message)
+    setMessage('');
+    sendMessage({ text: message })
       .catch((err) => console.log(err))
       .finally(() => {
-        setMessage('');
         setSending(false);
       });
   }, [sendMessage, message]);
+
+  const handleMediaSend = useCallback(
+    (media) => {
+      console.log("I'm here");
+      setSending(true);
+      sendMessage({ media })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setSending(false);
+        });
+    },
+    [sendMessage],
+  );
+
+  const mediaPicker = useMediaPickerDialog({
+    onError,
+    onPicked: handleMediaSend,
+  });
 
   const renderMediaAction = useCallback(() => {
     return (
@@ -61,13 +93,11 @@ const ChatScreen = ({
         <IconButton
           size={24}
           icon="plus-circle"
-          onPress={() => {
-            alert('Hello!');
-          }}
+          onPress={mediaPicker.showDialog}
         />
       </View>
     );
-  }, []);
+  }, [mediaPicker.showDialog]);
 
   const renderInputToolbar = useCallback(
     ({ renderActions, ...toolBarProps }) => {
@@ -164,58 +194,67 @@ const ChatScreen = ({
             elevation: 0,
             backgroundColor: theme.colors.primary,
           }}
+          color="#FFFFFF"
           onPress={onSend}
+          disabled={sending}
         />
       );
     },
-    [theme.colors.primary],
+    [sending, theme.colors.primary],
   );
 
   return (
-    <ScreenWrapper {...{ header }}>
-      <GiftedChat
-        messages={Object.values(messages).sort(
-          (a, b) => b.createdAt - a.createdAt,
-        )}
-        text={message}
-        onSend={() => {
-          handleSendMessage(message);
-        }}
-        onInputTextChanged={(text) => {
-          setMessage(text);
-        }}
-        user={{ _id: userID }}
-        renderBubble={renderBubble}
-        renderMessageVideo={renderMessageVideo}
-        renderInputToolbar={renderInputToolbar}
-        renderActions={renderMediaAction}
-        renderSend={renderSend}
-        renderTime={renderTime}
-        scrollToBottomComponent={() => (
-          <MaterialIcons name="expand-more" size={20} color="#FFFFFF" />
-        )}
-        scrollToBottomStyle={{
-          height: 28,
-          width: 28,
-          right: 12,
-          bottom: 16,
-          backgroundColor: theme.colors.accent,
-          opacity: 1,
-          elevation: 1,
-        }}
-        textInputStyle={{
-          fontFamily: 'NotoSans-Regular',
-        }}
-        textInputProps={{
-          autoCapitalize: 'sentences',
-        }}
-        imageStyle={{ borderRadius: 10 }}
-        lightboxProps={{ underlayColor: '#F1F1F1' }}
-        alwaysShowSend
-        scrollToBottom
-        minInputToolbarHeight={56}
-      />
-    </ScreenWrapper>
+    <>
+      <ScreenWrapper {...{ header }}>
+        <GiftedChat
+          messages={Object.values(messages).sort(
+            (a, b) => b.createdAt - a.createdAt,
+          )}
+          text={message}
+          onSend={() => {
+            handleSendMessage(message);
+          }}
+          onInputTextChanged={(text) => {
+            setMessage(text);
+          }}
+          user={{ _id: userID }}
+          renderBubble={renderBubble}
+          renderMessageVideo={renderMessageVideo}
+          renderInputToolbar={renderInputToolbar}
+          renderActions={renderMediaAction}
+          renderSend={renderSend}
+          renderTime={renderTime}
+          scrollToBottomComponent={() => (
+            <MaterialIcons name="expand-more" size={20} color="#FFFFFF" />
+          )}
+          scrollToBottomStyle={{
+            height: 28,
+            width: 28,
+            right: 12,
+            bottom: 16,
+            backgroundColor: theme.colors.accent,
+            opacity: 1,
+            elevation: 1,
+          }}
+          textInputStyle={{
+            fontFamily: 'NotoSans-Regular',
+          }}
+          textInputProps={{
+            autoCapitalize: 'sentences',
+          }}
+          imageStyle={{ borderRadius: 10 }}
+          lightboxProps={{ underlayColor: '#F1F1F1' }}
+          alwaysShowSend
+          scrollToBottom
+          minInputToolbarHeight={56}
+        />
+      </ScreenWrapper>
+      <Snackbar />
+      {mediaPicker.dialog}
+      <BottomModal visible={sending}>
+        <ActivityIndicator />
+      </BottomModal>
+    </>
   );
 };
 
