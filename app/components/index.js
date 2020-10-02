@@ -15,6 +15,7 @@ import Appbar from './Appbar';
 import Loader from './Loader';
 import AppointmentCard from './AppointmentCard';
 import ChatVideo from './ChatVideo';
+import MediaPickerDialog from './MediaPickerDialog';
 
 export {
   ScreenWrapper,
@@ -34,4 +35,5 @@ export {
   Loader,
   AppointmentCard,
   ChatVideo,
+  MediaPickerDialog,
 };

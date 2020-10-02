@@ -19,9 +19,7 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
   );
 
   const handleAudioRecorded = useCallback(
-    (file) => {
-      handlePicked([{ uri: `file://${file}`, type: 'audio' }]);
-    },
+    (file) => handlePicked([{ uri: `file://${file}`, type: 'audio' }]),
     [handlePicked],
   );
 
@@ -32,35 +30,33 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
 
   const captureImage = useCallback(() => {
     ImagePicker.openCamera({
-      multiple: true,
       compressImageQuality: 0.75,
       mediaType: 'photo',
       cropping: true,
     })
-      .then((images) => {
-        handlePicked(
-          images.map((image) => ({
+      .then((image) =>
+        handlePicked([
+          {
+            mime: image.mime,
             uri: image.path,
             type: 'image',
-          })),
-        );
-      })
+          },
+        ]),
+      )
       .catch(noOp);
   }, [handlePicked]);
 
   const captureVideo = useCallback(() => {
-    ImagePicker.openCamera({
-      multiple: true,
-      mediaType: 'video',
-    })
-      .then((videos) => {
-        handlePicked(
-          videos.map((video) => ({
+    ImagePicker.openCamera({ mediaType: 'video' })
+      .then((video) =>
+        handlePicked([
+          {
+            mime: video.mime,
             uri: video.path,
             type: 'video',
-          })),
-        );
-      })
+          },
+        ]),
+      )
       .catch(noOp);
   }, [handlePicked]);
 
@@ -73,6 +69,7 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
       .then((files) => {
         handlePicked(
           files.map((file) => ({
+            mime: file.mime,
             uri: file.path,
             type: file.mime.split('/')[0],
           })),
@@ -87,21 +84,29 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
         icon: 'camera',
         label: 'Photo',
         onPress: captureImage,
+        bgColor: '#D1E1FE',
+        color: '#5294FD',
       },
       {
         icon: 'video',
         label: 'Video',
         onPress: captureVideo,
+        bgColor: '#FECCD5',
+        color: '#FD3D65',
       },
       {
         icon: 'image',
         label: 'Gallery',
         onPress: selectFromGallery,
+        bgColor: '#DECCFF',
+        color: '#7E49FE',
       },
       {
         icon: 'microphone',
         label: 'Voice',
         onPress: audioRecorder.showDialog,
+        bgColor: '#FED3C6',
+        color: '#FA673B',
       },
     ],
     [captureImage, captureVideo, selectFromGallery, audioRecorder],
@@ -111,10 +116,16 @@ export default ({ visible, onDismiss, onPicked, onError }) => {
     <>
       <BottomModal {...{ visible, onDismiss }}>
         <View style={styles.buttonsGroup}>
-          {buttons.map(({ icon, label, onPress }) => (
+          {buttons.map(({ icon, label, bgColor, color, onPress }) => (
             <View key={icon} style={styles.buttonContainer}>
-              <FAB icon={icon} style={styles.button} onPress={onPress} />
-              <Caption small style={styles.bottonLabel}>
+              <FAB
+                icon={icon}
+                style={styles.button}
+                onPress={onPress}
+                theme={{ colors: { accent: bgColor } }}
+                color={color}
+              />
+              <Caption small style={{ ...styles.bottonLabel, color }}>
                 {label.toUpperCase()}
               </Caption>
             </View>
@@ -139,7 +150,7 @@ const styles = {
     flexGrow: 1,
   },
   button: {
-    elevation: 1,
+    elevation: 0,
   },
   bottonLabel: {
     margin: 0,
