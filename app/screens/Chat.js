@@ -55,18 +55,19 @@ const ChatScreen = ({
   }, [exitChat, navigation]);
 
   const handleSendMessage = useCallback(() => {
-    setSending(true);
-    setMessage('');
-    sendMessage({ text: message })
-      .catch((err) => console.log(err))
-      .finally(() => {
-        setSending(false);
-      });
+    if (message.length > 0) {
+      setSending(true);
+      setMessage('');
+      sendMessage({ text: message })
+        .catch((err) => console.log(err))
+        .finally(() => {
+          setSending(false);
+        });
+    }
   }, [sendMessage, message]);
 
   const handleMediaSend = useCallback(
     (media) => {
-      console.log("I'm here");
       setSending(true);
       sendMessage({ media })
         .catch((err) => console.log(err))
