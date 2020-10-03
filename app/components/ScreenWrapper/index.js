@@ -64,10 +64,12 @@ const ScreenWrapper = ({
               elevation,
               transform: [{ translateY }],
             }}>
+            {header.backAction && (
+              <Appbar.BackAction onPress={header.backAction} />
+            )}
             <Appbar.Content title={header.title} />
-            {header.actions.map((props) => (
-              <Appbar.Action {...props} />
-            ))}
+            {header.actions &&
+              header.actions.map((props) => <Appbar.Action {...props} />)}
           </Appbar.Header>
         </View>
       )}

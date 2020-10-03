@@ -25,6 +25,9 @@
     "diseasesPlaceholder": "Type to add",
     "registerButtonText": "Save"
   },
+  "appointment": {
+    "title": "Appointment"
+  },
   "error": {
     "INVALID_PHONE": "The phone number is invalid.",
     "MISSING_PHONE": "Please enter the phone number.",

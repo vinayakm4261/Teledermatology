@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { View } from 'react-native';
-import { FAB, useTheme } from 'react-native-paper';
+import { FAB, useTheme, TouchableRipple } from 'react-native-paper';
 import { connect } from 'react-redux';
 
 import {
@@ -95,7 +95,13 @@ const HomeScreen = ({
                 <Subheading>Upcoming Appointments</Subheading>
                 <View style={{ paddingVertical: 6 }}>
                   {appointments.map(({ _id, ...appointment }) => (
-                    <AppointmentCard {...{ key: _id, _id, ...appointment }} />
+                    <TouchableRipple
+                      onPress={() => {
+                        navigation.navigate('ViewAppointment');
+                      }}
+                      rippleColor="rgba(0, 0, 0, .32)">
+                      <AppointmentCard {...{ key: _id, _id, ...appointment }} />
+                    </TouchableRipple>
                   ))}
                 </View>
               </>

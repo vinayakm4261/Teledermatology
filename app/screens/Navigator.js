@@ -12,6 +12,7 @@ import LoadingScreen from './Loading';
 import PatientHomeScreen from './PatientHome';
 
 import DoctorHomeScreen from './DoctorHome';
+import ViewAppointment from './ViewAppointment';
 
 const Stack = createStackNavigator();
 
@@ -34,6 +35,7 @@ const Navigator = ({
     ) : !isDoctor ? (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={PatientHomeScreen} />
+        <Stack.Screen name="ViewAppointment" component={ViewAppointment} />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
