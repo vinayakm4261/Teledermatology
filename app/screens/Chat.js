@@ -5,6 +5,7 @@ import {
   FAB,
   IconButton,
   useTheme,
+  Text,
 } from 'react-native-paper';
 import { connect } from 'react-redux';
 import {
@@ -15,12 +16,12 @@ import {
 } from 'react-native-gifted-chat';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import { ChatVideo, ScreenWrapper } from '../components';
+import { ChatAudio, ChatVideo, ScreenWrapper } from '../components';
+import BottomModal from '../components/BottomModal';
 
 import useMediaPickerDialog from '../hooks/useMediaPickerDialog';
 import useSnackbar from '../hooks/useSnackbar';
 import { sendMessageAction, exitChatAction } from '../actions/chatActions';
-import BottomModal from '../components/BottomModal';
 
 const ChatScreen = ({
   navigation,
@@ -32,6 +33,7 @@ const ChatScreen = ({
   const theme = useTheme();
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [mediaSending, setMediaSending] = useState(false);
   const { showSnackbar, Snackbar } = useSnackbar();
 
   const onError = useCallback(() => {
@@ -59,23 +61,27 @@ const ChatScreen = ({
       setSending(true);
       setMessage('');
       sendMessage({ text: message })
-        .catch((err) => console.log(err))
+        .catch(({ type }) => {
+          showSnackbar(type);
+        })
         .finally(() => {
           setSending(false);
         });
     }
-  }, [sendMessage, message]);
+  }, [message, sendMessage, showSnackbar]);
 
   const handleMediaSend = useCallback(
     (media) => {
-      setSending(true);
+      setMediaSending(true);
       sendMessage({ media })
-        .catch((err) => console.log(err))
+        .catch(({ type }) => {
+          showSnackbar(type);
+        })
         .finally(() => {
-          setSending(false);
+          setMediaSending(false);
         });
     },
-    [sendMessage],
+    [sendMessage, showSnackbar],
   );
 
   const mediaPicker = useMediaPickerDialog({
@@ -126,6 +132,10 @@ const ChatScreen = ({
 
   const renderMessageVideo = useCallback((messageVideoProps) => {
     return <ChatVideo {...messageVideoProps} />;
+  }, []);
+
+  const renderMessageAudio = useCallback((messageVideoProps) => {
+    return <ChatAudio {...messageVideoProps} />;
   }, []);
 
   const renderBubble = useCallback(
@@ -221,6 +231,7 @@ const ChatScreen = ({
           user={{ _id: userID }}
           renderBubble={renderBubble}
           renderMessageVideo={renderMessageVideo}
+          renderMessageAudio={renderMessageAudio}
           renderInputToolbar={renderInputToolbar}
           renderActions={renderMediaAction}
           renderSend={renderSend}
@@ -232,7 +243,7 @@ const ChatScreen = ({
             height: 28,
             width: 28,
             right: 12,
-            bottom: 16,
+            bottom: 12,
             backgroundColor: theme.colors.accent,
             opacity: 1,
             elevation: 1,
@@ -252,8 +263,16 @@ const ChatScreen = ({
       </ScreenWrapper>
       <Snackbar />
       {mediaPicker.dialog}
-      <BottomModal visible={sending}>
-        <ActivityIndicator />
+      <BottomModal visible={mediaSending}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text style={{ marginRight: 8 }}>Uploading selected media..</Text>
+          <ActivityIndicator />
+        </View>
       </BottomModal>
     </>
   );

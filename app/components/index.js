@@ -15,6 +15,7 @@ import Appbar from './Appbar';
 import Loader from './Loader';
 import AppointmentCard from './AppointmentCard';
 import ChatVideo from './ChatVideo';
+import ChatAudio from './ChatAudio';
 import MediaPickerDialog from './MediaPickerDialog';
 
 export {
@@ -35,5 +36,6 @@ export {
   Loader,
   AppointmentCard,
   ChatVideo,
+  ChatAudio,
   MediaPickerDialog,
 };

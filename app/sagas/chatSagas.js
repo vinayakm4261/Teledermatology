@@ -50,7 +50,10 @@ const createChatNode = (reference, path) => {
   return createRef
     .set(data)
     .then(() => ({ message: { [createRef.key]: { ...data } }, error: null }))
-    .catch((err) => ({ message: null, error: databaseErrorMap[err.code] }));
+    .catch((err) => ({
+      message: null,
+      error: { type: databaseErrorMap[err.code] },
+    }));
 };
 
 const uploadFile = async (path, filePath, options = {}, type) => {
