@@ -42,7 +42,7 @@ const createChatNode = (reference, path) => {
 
   const data = {
     _id: createRef.key,
-    text: 'Discuss with your doctor over messages',
+    text: 'Discuss appointment details over messages',
     createdAt: Date.now(),
     system: true,
   };

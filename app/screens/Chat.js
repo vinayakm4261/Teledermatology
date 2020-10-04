@@ -13,6 +13,8 @@ import {
   Bubble,
   InputToolbar,
   Time,
+  SystemMessage,
+  Day,
 } from 'react-native-gifted-chat';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
@@ -163,6 +165,15 @@ const ChatScreen = ({
     [theme.colors.text],
   );
 
+  const renderSystemMessage = useCallback((systemMessageProps) => {
+    return (
+      <SystemMessage
+        textStyle={{ fontFamily: 'NotoSans-Bold' }}
+        {...systemMessageProps}
+      />
+    );
+  }, []);
+
   const renderTime = useCallback(
     (timeProps) => {
       return (
@@ -183,6 +194,17 @@ const ChatScreen = ({
     },
     [theme.colors.greyLight],
   );
+
+  const renderDay = useCallback((dayProps) => {
+    return (
+      <Day
+        {...dayProps}
+        textStyle={{
+          fontFamily: 'NotoSans-Regular',
+        }}
+      />
+    );
+  }, []);
 
   const renderSend = useCallback(
     ({ onSend }) => {
@@ -230,12 +252,14 @@ const ChatScreen = ({
           }}
           user={{ _id: userID }}
           renderBubble={renderBubble}
+          renderSystemMessage={renderSystemMessage}
           renderMessageVideo={renderMessageVideo}
           renderMessageAudio={renderMessageAudio}
           renderInputToolbar={renderInputToolbar}
           renderActions={renderMediaAction}
           renderSend={renderSend}
           renderTime={renderTime}
+          renderDay={renderDay}
           scrollToBottomComponent={() => (
             <MaterialIcons name="expand-more" size={20} color="#FFFFFF" />
           )}
