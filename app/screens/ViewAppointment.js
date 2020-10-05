@@ -1,12 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Text, View, Image } from 'react-native';
+import moment from 'moment';
 import { Card, Avatar, useTheme, FAB } from 'react-native-paper';
 
+import { connect } from 'react-redux';
+
+import { viewAppointmentStyles } from './styles';
 import { ScreenWrapper, Label, Chip } from '../components';
 import translate from '../locales/translate';
 
-const ViewAppointment = (navigation) => {
+const ViewAppointment = ({ navigation, userData }) => {
   const theme = useTheme();
+  const styles = useMemo(viewAppointmentStyles(), []);
+  const today = new Date();
   const header = useMemo(
     () => ({
       title: translate('appointment.title'),
@@ -14,38 +20,99 @@ const ViewAppointment = (navigation) => {
     }),
     [navigation],
   );
+
+  const renderFooter = useCallback(
+    () => (
+      <View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          margin: 16,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <View style={styles.row}>
+          <FAB
+            icon="message-text-outline"
+            onPress={() => {
+              alert('Chat');
+            }}
+            label="Chat"
+            theme={{ colors: { accent: theme.colors.primary } }}
+            style={styles.rowLeft}
+          />
+          <FAB
+            icon="video-outline"
+            onPress={() => {
+              alert('Video Call');
+            }}
+            label="Video Call"
+            theme={{ colors: { accent: theme.colors.primary } }}
+            style={styles.rowRight}
+          />
+        </View>
+      </View>
+    ),
+    [theme.colors.primary, styles.rowRight, styles.rowLeft, styles.row],
+  );
+
   return (
     <ScreenWrapper
-      {...{ header }}
+      {...{ header, renderFooter }}
       style={{
         paddingHorizontal: 16,
         paddingBottom: 80,
       }}>
       <Label>Doctor</Label>
-      <Card
-        style={{
-          marginVertical: 4,
-          backgroundColor: theme.colors.greyLight,
-        }}
-        theme={{ roundness: 8 }}>
-        <Card.Title left={(props) => <Avatar.Image />} />
+      <Card style={styles.card} theme={{ roundness: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Avatar.Image
+            source={{ uri: userData.profilePic }}
+            size={78}
+            style={{ margin: 10 }}
+          />
+          <View style={{ flex: 1, marginLeft: 4 }}>
+            <Text style={{ ...theme.fonts.medium, fontSize: 18 }}>
+              Dr. Max Otwell
+            </Text>
+            <Text style={{ ...theme.fonts.medium, fontSize: 14 }}>
+              Dermatlogist
+            </Text>
+            <Text style={{ ...theme.fonts.medium, fontSize: 14 }}>
+              Somaiya Hospital
+            </Text>
+          </View>
+        </View>
       </Card>
       <Label>Schedule</Label>
-      <Card
-        style={{
-          marginVertical: 4,
-          backgroundColor: theme.colors.greyLight,
-        }}
-        theme={{ roundness: 8 }}>
-        <Text style={{ ...theme.fonts.medium, marginHorizontal: 8 }}>
-          Status:
+      <Card style={[styles.card, { padding: 6 }]} theme={{ roundness: 8 }}>
+        <Text style={{ ...theme.fonts.medium, marginHorizontal: 2 }}>
+          Status:{' '}
+          <Text
+            style={{
+              ...theme.fonts.medium,
+              color: theme.colors.status['accepted'.toUpperCase()],
+              textTransform: 'uppercase',
+            }}>
+            accepted
+          </Text>
         </Text>
-        <Text style={{ ...theme.fonts.medium, marginHorizontal: 8 }}>
-          Date:
+        <Text style={{ ...theme.fonts.medium, marginHorizontal: 2 }}>
+          Date:{' '}
+          <Text style={{ ...theme.fonts.medium }}>
+            {`${moment(today).calendar(null, {
+              sameDay: '[Today]',
+              nextDay: '[Tomorrow]',
+              nextWeek: 'dddd, Do MMM',
+              sameElse: 'Do MMM YYYY',
+            })}`}
+          </Text>
         </Text>
       </Card>
       <Label>Symptoms</Label>
-      <Card style={{ backgroundColor: theme.colors.greyLight }}>
+      <Card style={styles.card} theme={{ roundness: 8 }}>
         <View
           style={{
             flexDirection: 'row',
@@ -59,23 +126,55 @@ const ViewAppointment = (navigation) => {
         </View>
       </Card>
       <Label>Images/Scans</Label>
-      <Card style={{ backgroundColor: theme.colors.greyLight }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            padding: 6,
-          }}>
+      <Card style={styles.card} theme={{ roundness: 8 }}>
+        <View style={styles.mediaContainer}>
           <Image
-            style={{ height: 100, width: 100, margin: 4, borderRadius: 6 }}
+            style={styles.img}
             source={{
               uri:
                 'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
             }}
           />
           <Image
-            style={{ height: 100, width: 100, margin: 4, borderRadius: 6 }}
+            style={styles.img}
+            source={{
+              uri:
+                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
+            }}
+          />
+        </View>
+      </Card>
+      <Label>Videos</Label>
+      <Card style={styles.card} theme={{ roundness: 8 }}>
+        <View style={styles.mediaContainer}>
+          <Image
+            style={styles.img}
+            source={{
+              uri:
+                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
+            }}
+          />
+          <Image
+            style={styles.img}
+            source={{
+              uri:
+                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
+            }}
+          />
+        </View>
+      </Card>
+      <Label>Audios</Label>
+      <Card style={styles.card} theme={{ roundness: 8 }}>
+        <View style={styles.mediaContainer}>
+          <Image
+            style={styles.img}
+            source={{
+              uri:
+                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
+            }}
+          />
+          <Image
+            style={styles.img}
             source={{
               uri:
                 'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
@@ -84,38 +183,17 @@ const ViewAppointment = (navigation) => {
         </View>
       </Card>
       <Label>Additional Information</Label>
-      <Card style={{ backgroundColor: theme.colors.greyLight }}>
-        <Text>Additional Information entered will be shown here</Text>
+      <Card style={[styles.card, { padding: 10 }]} theme={{ roundness: 8 }}>
+        <Text style={{ ...theme.fonts.regular }}>
+          Additional Information entered will be shown here
+        </Text>
       </Card>
-      <View style={{ position: 'absolute', bottom: 8, right: 65 }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            padding: 6,
-          }}>
-          <FAB
-            icon="message-text-outline"
-            onPress={() => {
-              alert('Chat');
-            }}
-            label="Chat"
-            theme={{ colors: { accent: theme.colors.primary } }}
-            style={{ width: 100, margin: 4 }}
-          />
-          <FAB
-            icon="video-outline"
-            onPress={() => {
-              alert('Video Call');
-            }}
-            label="Video Call"
-            theme={{ colors: { accent: theme.colors.primary } }}
-            style={{ width: 150, margin: 4 }}
-          />
-        </View>
-      </View>
     </ScreenWrapper>
   );
 };
 
-export default ViewAppointment;
+const mapStateToProps = (state) => ({
+  userData: state.authReducer.userData,
+});
+
+export default connect(mapStateToProps)(ViewAppointment);
