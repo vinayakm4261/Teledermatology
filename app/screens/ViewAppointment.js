@@ -1,7 +1,16 @@
-import React, { useMemo, useCallback } from 'react';
-import { Text, View, Image } from 'react-native';
+import React, { useMemo, useCallback, useState } from 'react';
+import { Text, View, Image, Modal } from 'react-native';
 import moment from 'moment';
-import { Card, Avatar, useTheme, FAB } from 'react-native-paper';
+import VideoPlayer from 'react-native-video-controls';
+
+import {
+  Card,
+  Avatar,
+  useTheme,
+  FAB,
+  TouchableRipple,
+} from 'react-native-paper';
+import ImageView from 'react-native-image-viewing';
 
 import { connect } from 'react-redux';
 
@@ -13,6 +22,19 @@ const ViewAppointment = ({ navigation, userData }) => {
   const theme = useTheme();
   const styles = useMemo(viewAppointmentStyles(), []);
   const today = new Date();
+  const images = [
+    {
+      uri: 'https://images.unsplash.com/photo-1571501679680-de32f1e7aad4',
+    },
+    {
+      uri: 'https://images.unsplash.com/photo-1573273787173-0eb81a833b34',
+    },
+  ];
+
+  const [visible, setIsVisible] = useState(false);
+  const [imgIndex, setImgIndex] = useState(0);
+  const [play, setPlay] = useState(false);
+
   const header = useMemo(
     () => ({
       title: translate('appointment.title'),
@@ -78,7 +100,7 @@ const ViewAppointment = ({ navigation, userData }) => {
               Dr. Max Otwell
             </Text>
             <Text style={{ ...theme.fonts.medium, fontSize: 14 }}>
-              Dermatlogist
+              Dermatologist
             </Text>
             <Text style={{ ...theme.fonts.medium, fontSize: 14 }}>
               Somaiya Hospital
@@ -128,39 +150,49 @@ const ViewAppointment = ({ navigation, userData }) => {
       <Label>Images/Scans</Label>
       <Card style={styles.card} theme={{ roundness: 8 }}>
         <View style={styles.mediaContainer}>
-          <Image
-            style={styles.img}
-            source={{
-              uri:
-                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-            }}
-          />
-          <Image
-            style={styles.img}
-            source={{
-              uri:
-                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-            }}
-          />
+          <TouchableRipple
+            onPress={() => {
+              setIsVisible(true);
+              setImgIndex(0);
+            }}>
+            <Image
+              style={styles.img}
+              source={{
+                uri:
+                  'https://images.unsplash.com/photo-1571501679680-de32f1e7aad4',
+              }}
+            />
+          </TouchableRipple>
+          <TouchableRipple
+            onPress={() => {
+              setIsVisible(true);
+              setImgIndex(1);
+            }}>
+            <Image
+              style={styles.img}
+              source={{
+                uri:
+                  'https://images.unsplash.com/photo-1573273787173-0eb81a833b34',
+              }}
+            />
+          </TouchableRipple>
         </View>
       </Card>
       <Label>Videos</Label>
-      <Card style={styles.card} theme={{ roundness: 8 }}>
+      <Card styles={styles.card} theme={{ roundness: 8 }}>
         <View style={styles.mediaContainer}>
-          <Image
-            style={styles.img}
-            source={{
-              uri:
-                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-            }}
-          />
-          <Image
-            style={styles.img}
-            source={{
-              uri:
-                'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-            }}
-          />
+          <TouchableRipple
+            onPress={() => {
+              setPlay(true);
+            }}>
+            <Image
+              style={styles.img}
+              source={{
+                uri:
+                  'https://images.unsplash.com/photo-1569569970363-df7b6160d111',
+              }}
+            />
+          </TouchableRipple>
         </View>
       </Card>
       <Label>Audios</Label>
@@ -188,6 +220,31 @@ const ViewAppointment = ({ navigation, userData }) => {
           Additional Information entered will be shown here
         </Text>
       </Card>
+      <ImageView
+        images={images}
+        imageIndex={imgIndex}
+        visible={visible}
+        onRequestClose={() => setIsVisible(false)}
+      />
+      <Modal
+        visible={play}
+        onRequestClose={() => {
+          setPlay(false);
+        }}>
+        <VideoPlayer
+          source={{
+            uri: 'https://vjs.zencdn.net/v/oceans.mp4',
+          }}
+          onBack={() => {
+            setPlay(false);
+          }}
+          onEnd={() => {
+            setPlay(false);
+          }}
+          disableVolume
+          disableFullscreen
+        />
+      </Modal>
     </ScreenWrapper>
   );
 };
