@@ -92,7 +92,13 @@ export default function ({ currentMessage, audioProps }) {
           small
           onPress={playing ? (paused ? handleAudio : handlePause) : handleAudio}
         />
-        <Text style={{ color: '#696969', marginLeft: 8, marginTop: 2 }}>
+        <Text
+          style={{
+            color: '#696969',
+            marginLeft: 8,
+            marginTop: 2,
+            ...theme.fonts.regular,
+          }}>
           {playTime}
         </Text>
         {playing && (

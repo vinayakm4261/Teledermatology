@@ -151,28 +151,31 @@ const ChatScreen = ({
           textStyle={{
             right: {
               color: theme.colors.text,
-              fontFamily: 'NotoSans-Regular',
+              ...theme.fonts.regular,
             },
             left: {
               color: theme.colors.text,
-              fontFamily: 'NotoSans-Regular',
+              ...theme.fonts.regular,
             },
           }}
           {...bubbleProps}
         />
       );
     },
-    [theme.colors.text],
+    [theme.colors.text, theme.fonts.regular],
   );
 
-  const renderSystemMessage = useCallback((systemMessageProps) => {
-    return (
-      <SystemMessage
-        textStyle={{ fontFamily: 'NotoSans-Bold' }}
-        {...systemMessageProps}
-      />
-    );
-  }, []);
+  const renderSystemMessage = useCallback(
+    (systemMessageProps) => {
+      return (
+        <SystemMessage
+          textStyle={{ ...theme.fonts.medium }}
+          {...systemMessageProps}
+        />
+      );
+    },
+    [theme.fonts.medium],
+  );
 
   const renderTime = useCallback(
     (timeProps) => {
@@ -181,30 +184,33 @@ const ChatScreen = ({
           {...timeProps}
           timeTextStyle={{
             left: {
-              fontFamily: 'NotoSans-Regular',
+              ...theme.fonts.regular,
               color: theme.colors.greyLight,
             },
             right: {
-              fontFamily: 'NotoSans-Regular',
+              ...theme.fonts.regular,
               color: theme.colors.greyLight,
             },
           }}
         />
       );
     },
-    [theme.colors.greyLight],
+    [theme.colors.greyLight, theme.fonts.regular],
   );
 
-  const renderDay = useCallback((dayProps) => {
-    return (
-      <Day
-        {...dayProps}
-        textStyle={{
-          fontFamily: 'NotoSans-Regular',
-        }}
-      />
-    );
-  }, []);
+  const renderDay = useCallback(
+    (dayProps) => {
+      return (
+        <Day
+          {...dayProps}
+          textStyle={{
+            ...theme.fonts.regular,
+          }}
+        />
+      );
+    },
+    [theme.fonts.regular],
+  );
 
   const renderSend = useCallback(
     ({ onSend }) => {
@@ -273,7 +279,7 @@ const ChatScreen = ({
             elevation: 1,
           }}
           textInputStyle={{
-            fontFamily: 'NotoSans-Regular',
+            ...theme.fonts.regular,
           }}
           textInputProps={{
             autoCapitalize: 'sentences',
@@ -294,7 +300,9 @@ const ChatScreen = ({
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Text style={{ marginRight: 8 }}>Uploading selected media..</Text>
+          <Text style={{ marginRight: 8, ...theme.fonts.regular }}>
+            Uploading selected media..
+          </Text>
           <ActivityIndicator />
         </View>
       </BottomModal>
