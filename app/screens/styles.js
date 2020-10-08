@@ -50,7 +50,7 @@ const viewAppointmentStyles = () => () =>
       marginLeft: 4,
     },
     card: {
-      marginVertical: 4,
+      marginBottom: 4,
       backgroundColor: '#eeeeee',
       elevation: 0,
     },

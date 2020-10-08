@@ -40,6 +40,7 @@ const Navigator = ({
     ) : (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={DoctorHomeScreen} />
+        <Stack.Screen name="ViewAppointment" component={ViewAppointment} />
       </Stack.Navigator>
     )}
   </NavigationContainer>

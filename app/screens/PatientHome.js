@@ -98,7 +98,7 @@ const HomeScreen = ({
                     <AppointmentCard
                       {...{ key: _id, _id, ...appointment }}
                       onPress={() => {
-                        navigation.navigate('ViewAppointment');
+                        navigation.navigate('ViewAppointment', { _id });
                       }}
                     />
                   ))}
