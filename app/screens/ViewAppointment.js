@@ -27,6 +27,7 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
   const [images, setImages] = useState([]);
   const [generalData, setGeneralData] = useState();
   const [scheduleFixed, setScheduleFixed] = useState(true);
+  const [videoCallEnable, setVideoCallEnable] = useState(true);
 
   useEffect(() => {
     try {
@@ -40,6 +41,16 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
         response.response[0].photos.forEach((value) => {
           setImages((oldImages) => [...oldImages, { uri: value }]);
         });
+        const today = new Date();
+        const currTime = moment(today).add(10, 'minutes').format('hh:mm A');
+        if (
+          moment(currTime, 'hh:mm A').isSame(
+            moment(response.response[0].time, 'hh:mm A'),
+            'time',
+          )
+        ) {
+          setVideoCallEnable(false);
+        }
         if (response.response[0].status === 'accepted') {
           setScheduleFixed(false);
         }
@@ -108,6 +119,7 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
             label="Video Call"
             theme={{ colors: { accent: theme.colors.primary } }}
             style={styles.rowRight}
+            disabled={videoCallEnable}
           />
         </View>
       </View>
@@ -118,9 +130,9 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
       styles.rowLeft,
       styles.row,
       scheduleFixed,
+      videoCallEnable,
     ],
   );
-  // alert(JSON.stringify(generalData));
   return (
     <Loader loaded={!loading}>
       {() => (
