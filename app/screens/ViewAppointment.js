@@ -1,9 +1,5 @@
 import React, { useMemo, useCallback, useState, useEffect } from 'react';
-import { Text, View, Image, Modal } from 'react-native';
-import moment from 'moment';
-import VideoPlayer from 'react-native-video-controls';
-import { connect } from 'react-redux';
-
+import { Text, View, Image, Modal, FlatList } from 'react-native';
 import {
   Card,
   Avatar,
@@ -12,12 +8,16 @@ import {
   TouchableRipple,
 } from 'react-native-paper';
 import ImageView from 'react-native-image-viewing';
+import VideoPlayer from 'react-native-video-controls';
+import { connect } from 'react-redux';
+import moment from 'moment';
 
 import { viewAppointmentStyles } from './styles';
 import { ScreenWrapper, Label, Chip, Loader } from '../components';
+import ChatAudio from '../components/ChatAudio';
+
 import translate from '../locales/translate';
 import requestAPI from '../helpers/requestAPI';
-import ChatAudio from '../components/ChatAudio';
 
 const ViewAppointment = ({ route, navigation, isDoctor }) => {
   const theme = useTheme();
@@ -37,39 +37,53 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
         : `/patient/fetchAppointment`;
       requestAPI(endPoint, 'POST', {
         appointmentID: _id,
-      }).then((response) => {
-        setAppt(response.response);
-        response.response[0].photos.forEach((value) => {
+      }).then(({ response }) => {
+        setAppt(response);
+
+        response[0].photos.forEach((value) => {
           setImages((oldImages) => [...oldImages, { uri: value }]);
         });
-        const today = new Date();
-        const currTime = moment(today).add(10, 'minutes').format('hh:mm A');
+
+        const appointmentDateTime = moment(
+          `${moment(response[0].date).format('DD-MM-YYYY')} ${
+            response[0].time
+          }`,
+          'DD-MM-YYYY hh:mm A',
+        );
+
         if (
-          moment(currTime, 'hh:mm A').isSame(
-            moment(response.response[0].time, 'hh:mm A'),
-            'time',
+          moment().isBetween(
+            moment(appointmentDateTime, 'DD-MM-YYYY hh:mm A').subtract(
+              11,
+              'minutes',
+            ),
+            moment(appointmentDateTime, 'DD-MM-YYYY hh:mm A').add(1, 'hour'),
           )
         ) {
           setVideoCallEnable(false);
         }
-        if (response.response[0].status === 'accepted') {
+
+        if (response[0].status === 'accepted') {
           setScheduleFixed(false);
         }
+
         if (isDoctor)
           setGeneralData({
-            name: response.response[0].patientData.name,
-            profilePic: response.response[0].patientData.profilePic,
-            age: response.response[0].patientData.age,
-            gender: response.response[0].patientData.gender,
-            diseases: response.response[0].patientData.diseases,
+            name: response[0].patientData.name,
+            profilePic: response[0].patientData.profilePic,
+            age: response[0].patientData.age,
+            gender: response[0].patientData.gender,
+            diseases: response[0].patientData.diseases,
           });
-        else
+        else {
           setGeneralData({
-            name: response.response[0].doctorData.name,
-            profilePic: response.response[0].doctorData.profilePic,
-            hospital: response.response[0].doctorData.hospital,
-            department: response.response[0].doctorData.department,
+            name: response[0].doctorData.name,
+            profilePic: response[0].doctorData.profilePic,
+            hospital: response[0].doctorData.hospital,
+            department: response[0].doctorData.department,
           });
+        }
+
         setLoading(false);
       });
     } catch (err) {
@@ -109,7 +123,10 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
             }}
             label="Chat"
             theme={{ colors: { accent: theme.colors.primary } }}
-            style={styles.rowLeft}
+            style={{
+              backgroundColor: scheduleFixed ? '#E0E0E0' : theme.colors.primary,
+              ...styles.rowLeft,
+            }}
             disabled={scheduleFixed}
           />
           <FAB
@@ -119,203 +136,211 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
             }}
             label="Video Call"
             theme={{ colors: { accent: theme.colors.primary } }}
-            style={styles.rowRight}
+            style={{
+              backgroundColor: videoCallEnable
+                ? '#E0E0E0'
+                : theme.colors.primary,
+              ...styles.rowRight,
+            }}
             disabled={videoCallEnable}
           />
         </View>
       </View>
     ),
     [
-      theme.colors.primary,
-      styles.rowRight,
-      styles.rowLeft,
       styles.row,
+      styles.rowLeft,
+      styles.rowRight,
+      theme.colors.primary,
       scheduleFixed,
       videoCallEnable,
     ],
   );
+
   return (
-    <Loader loaded={!loading}>
-      {() => (
-        <ScreenWrapper
-          {...{ header, renderFooter }}
-          style={{
-            paddingHorizontal: 16,
-            paddingBottom: 80,
-          }}>
-          <Label>{isDoctor ? 'Patient' : 'Doctor'}</Label>
-          <Card style={styles.card} theme={{ roundness: 8 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Avatar.Image
-                source={{ uri: generalData.profilePic }}
-                size={78}
-                style={{ margin: 10 }}
-              />
-              <View style={{ flex: 1, marginLeft: 4 }}>
-                <Text style={{ ...theme.fonts.medium, fontSize: 18 }}>
-                  {generalData.name}
-                </Text>
-                {isDoctor ? (
-                  <Text style={{ ...theme.fonts.regular, fontSize: 14 }}>
-                    {generalData.gender.toUpperCase()}, {generalData.age} YEARS
+    <ScreenWrapper
+      {...{ header, renderFooter }}
+      style={{
+        paddingHorizontal: 16,
+        paddingBottom: 80,
+      }}>
+      <Loader loaded={!loading}>
+        {() => (
+          <>
+            <Label>{isDoctor ? 'Patient' : 'Doctor'}</Label>
+            <Card style={styles.card} theme={{ roundness: 8 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Avatar.Image
+                  source={{ uri: generalData.profilePic }}
+                  size={78}
+                  style={{ margin: 10 }}
+                />
+                <View style={{ flex: 1, marginLeft: 4 }}>
+                  <Text style={{ ...theme.fonts.medium, fontSize: 18 }}>
+                    {generalData.name}
                   </Text>
-                ) : (
-                  <>
+                  {isDoctor ? (
                     <Text style={{ ...theme.fonts.regular, fontSize: 14 }}>
-                      {generalData.department}
+                      {generalData.gender.toUpperCase()}, {generalData.age}{' '}
+                      YEARS
                     </Text>
-                    <Text style={{ ...theme.fonts.regular, fontSize: 14 }}>
-                      {generalData.hospital}
-                    </Text>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <Text style={{ ...theme.fonts.regular, fontSize: 14 }}>
+                        {generalData.department}
+                      </Text>
+                      <Text style={{ ...theme.fonts.regular, fontSize: 14 }}>
+                        {generalData.hospital}
+                      </Text>
+                    </>
+                  )}
+                </View>
               </View>
-            </View>
-          </Card>
-          <Label>Schedule</Label>
-          <Card style={[styles.card, { padding: 6 }]} theme={{ roundness: 8 }}>
-            <Text style={{ ...theme.fonts.regular, marginHorizontal: 2 }}>
-              Status:{' '}
-              <Text
+            </Card>
+            <Label>Schedule</Label>
+            <Card
+              style={[styles.card, { padding: 6 }]}
+              theme={{ roundness: 8 }}>
+              <Text style={{ ...theme.fonts.regular, marginHorizontal: 2 }}>
+                Status:{' '}
+                <Text
+                  style={{
+                    ...theme.fonts.medium,
+                    color: theme.colors.status[appt[0].status.toUpperCase()],
+                    textTransform: 'uppercase',
+                  }}>
+                  {appt[0].status}
+                </Text>
+              </Text>
+              <Text style={{ ...theme.fonts.regular, marginHorizontal: 2 }}>
+                Date:{' '}
+                <Text style={{ ...theme.fonts.medium }}>
+                  {`${moment(appt[0].date).calendar(null, {
+                    sameDay: '[Today]',
+                    nextDay: '[Tomorrow]',
+                    nextWeek: 'dddd, Do MMM',
+                    sameElse: 'Do MMM YYYY',
+                  })}${!appt[0].time ? '' : `, ${appt[0].time}`}`}
+                </Text>
+              </Text>
+            </Card>
+            <Label>Symptoms</Label>
+            <Card style={styles.card} theme={{ roundness: 8 }}>
+              <View
                 style={{
-                  ...theme.fonts.medium,
-                  color: theme.colors.status[appt[0].status.toUpperCase()],
-                  textTransform: 'uppercase',
+                  flexDirection: 'row',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  padding: 4,
                 }}>
-                {appt[0].status}
-              </Text>
-            </Text>
-            <Text style={{ ...theme.fonts.regular, marginHorizontal: 2 }}>
-              Date:{' '}
-              <Text style={{ ...theme.fonts.medium }}>
-                {`${moment(appt[0].date).calendar(null, {
-                  sameDay: '[Today]',
-                  nextDay: '[Tomorrow]',
-                  nextWeek: 'dddd, Do MMM',
-                  sameElse: 'Do MMM YYYY',
-                })}${!appt[0].time ? '' : `, ${appt[0].time}`}`}
-              </Text>
-            </Text>
-          </Card>
-          <Label>Symptoms</Label>
-          <Card style={styles.card} theme={{ roundness: 8 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                alignItems: 'center',
-                padding: 4,
-              }}>
-              {appt[0].symptoms.map((value) => (
-                <Chip>{value}</Chip>
-              ))}
-            </View>
-          </Card>
-          <Label>Images/Scans</Label>
-          <Card style={styles.card} theme={{ roundness: 8 }}>
-            {images.length === 0 ? (
-              <Text style={{ ...theme.fonts.regular, padding: 10 }}>
-                No images uploaded
-              </Text>
-            ) : (
-              <View style={styles.mediaContainer}>
-                {appt[0].photos.map((value, index) => (
-                  <TouchableRipple
-                    onPress={() => {
-                      setImgVisible(true);
-                      setImgIndex(index);
-                    }}>
-                    <Image
-                      style={styles.img}
-                      source={{
-                        uri: value,
+                {appt[0].symptoms.map((value) => (
+                  <Chip>{value}</Chip>
+                ))}
+              </View>
+            </Card>
+            <Label>Images/Scans</Label>
+            <Card style={styles.card} theme={{ roundness: 8 }}>
+              {images.length === 0 ? (
+                <Text style={{ ...theme.fonts.regular, padding: 10 }}>
+                  No images uploaded
+                </Text>
+              ) : (
+                <View style={styles.mediaContainer}>
+                  {appt[0].photos.map((value, index) => (
+                    <TouchableRipple
+                      onPress={() => {
+                        setImgVisible(true);
+                        setImgIndex(index);
+                      }}>
+                      <Image
+                        style={styles.img}
+                        source={{
+                          uri: value,
+                        }}
+                      />
+                    </TouchableRipple>
+                  ))}
+                </View>
+              )}
+            </Card>
+            <Label>Videos</Label>
+            <Card style={styles.card} theme={{ roundness: 8 }}>
+              {appt[0].videos.length === 0 ? (
+                <Text style={{ ...theme.fonts.regular, padding: 10 }}>
+                  No videos uploaded
+                </Text>
+              ) : (
+                <View style={styles.mediaContainer}>
+                  {appt[0].videos.map((value, index) => (
+                    <TouchableRipple
+                      onPress={() => {
+                        setPlayVideo({ play: true, uri: value });
+                      }}>
+                      <Chip>Video {index + 1}</Chip>
+                    </TouchableRipple>
+                  ))}
+                </View>
+              )}
+            </Card>
+            <Label>Voice Recordings</Label>
+            <Card style={styles.card} theme={{ roundness: 8 }}>
+              <FlatList
+                data={appt[0].audio}
+                numColumns={2}
+                renderItem={({ item }) => (
+                  <View style={{ flex: 1 }}>
+                    <ChatAudio
+                      currentMessage={{
+                        audio: item,
                       }}
+                      audioProps={{}}
                     />
-                  </TouchableRipple>
-                ))}
-              </View>
-            )}
-          </Card>
-          <Label>Videos</Label>
-          <Card style={styles.card} theme={{ roundness: 8 }}>
-            {appt[0].videos.length === 0 ? (
-              <Text style={{ ...theme.fonts.regular, padding: 10 }}>
-                No videos uploaded
+                  </View>
+                )}
+                keyExtractor={(item) => item}
+                ListEmptyComponent={() => (
+                  <Text style={{ ...theme.fonts.regular, padding: 10 }}>
+                    No audio recordings uploaded
+                  </Text>
+                )}
+              />
+            </Card>
+            <Label>Additional Information</Label>
+            <Card
+              style={[styles.card, { padding: 10 }]}
+              theme={{ roundness: 8 }}>
+              <Text style={{ ...theme.fonts.regular }}>
+                {appt[0].additionalInfo
+                  ? appt[0].additionalInfo
+                  : 'No Additional Info provided'}
               </Text>
-            ) : (
-              <View style={styles.mediaContainer}>
-                {appt[0].videos.map((value, index) => (
-                  <TouchableRipple
-                    onPress={() => {
-                      setPlayVideo({ play: true, uri: value });
-                    }}>
-                    <Chip>Video {index + 1}</Chip>
-                  </TouchableRipple>
-                ))}
-              </View>
-            )}
-          </Card>
-          <Label>Voice Recordings</Label>
-          <Card style={styles.card} theme={{ roundness: 8 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-              }}>
-              <View style={{ flex: 1, flexShrink: 1 }}>
-                {/* <View> */}
-                <ChatAudio
-                  currentMessage={{
-                    audio:
-                      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                  }}
-                  audioProps={{ containerStyle: { marginRight: 12 } }}
-                />
-              </View>
-              <View style={{ flex: 1, flexShrink: 1 }}>
-                <ChatAudio
-                  currentMessage={{
-                    audio:
-                      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-                  }}
-                  audioProps={{ containerStyle: { marginRight: 12 } }}
-                />
-              </View>
-            </View>
-          </Card>
-          <Label>Additional Information</Label>
-          <Card style={[styles.card, { padding: 10 }]} theme={{ roundness: 8 }}>
-            <Text style={{ ...theme.fonts.regular }}>
-              Additional Information entered will be shown here
-            </Text>
-          </Card>
-          <ImageView
-            images={images}
-            imageIndex={imgIndex}
-            visible={imgVisible}
-            onRequestClose={() => setImgVisible(false)}
-          />
-          <Modal
-            visible={playVideo.play}
-            onRequestClose={() => {
-              setPlayVideo({ play: false, uri: '' });
-            }}>
-            <VideoPlayer
-              source={{
-                uri: playVideo.uri,
-              }}
-              onBack={() => {
-                setPlayVideo({ play: false, uri: '' });
-              }}
-              onEnd={() => {
-                setPlayVideo({ play: false, uri: '' });
-              }}
-              disableVolume
-              disableFullscreen
+            </Card>
+            <ImageView
+              images={images}
+              imageIndex={imgIndex}
+              visible={imgVisible}
+              onRequestClose={() => setImgVisible(false)}
             />
-          </Modal>
-        </ScreenWrapper>
-      )}
-    </Loader>
+            <Modal
+              visible={playVideo.play}
+              onRequestClose={() => {
+                setPlayVideo({ play: false, uri: '' });
+              }}>
+              <VideoPlayer
+                source={{
+                  uri: playVideo.uri,
+                }}
+                onBack={() => {
+                  setPlayVideo({ play: false, uri: '' });
+                }}
+                disableVolume
+                disableFullscreen
+              />
+            </Modal>
+          </>
+        )}
+      </Loader>
+    </ScreenWrapper>
   );
 };
 
