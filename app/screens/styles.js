@@ -43,11 +43,13 @@ const viewAppointmentStyles = () => () =>
     },
     rowLeft: {
       flex: 1,
-      marginRight: 4,
+      // padding: 5,
+      // marginRight: 4,
     },
     rowRight: {
       flex: 1,
-      marginLeft: 4,
+      // padding: 5,
+      // marginLeft: 4,
     },
     card: {
       marginBottom: 4,

@@ -17,6 +17,7 @@ import { viewAppointmentStyles } from './styles';
 import { ScreenWrapper, Label, Chip, Loader } from '../components';
 import translate from '../locales/translate';
 import requestAPI from '../helpers/requestAPI';
+import ChatAudio from '../components/ChatAudio';
 
 const ViewAppointment = ({ route, navigation, isDoctor }) => {
   const theme = useTheme();
@@ -256,21 +257,29 @@ const ViewAppointment = ({ route, navigation, isDoctor }) => {
           </Card>
           <Label>Voice Recordings</Label>
           <Card style={styles.card} theme={{ roundness: 8 }}>
-            <View style={styles.mediaContainer}>
-              <Image
-                style={styles.img}
-                source={{
-                  uri:
-                    'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-                }}
-              />
-              <Image
-                style={styles.img}
-                source={{
-                  uri:
-                    'https://image.freepik.com/free-vector/flat-nurse-with-patient_23-2148158494.jpg',
-                }}
-              />
+            <View
+              style={{
+                flexDirection: 'row',
+              }}>
+              <View style={{ flex: 1, flexShrink: 1 }}>
+                {/* <View> */}
+                <ChatAudio
+                  currentMessage={{
+                    audio:
+                      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                  }}
+                  audioProps={{ containerStyle: { marginRight: 12 } }}
+                />
+              </View>
+              <View style={{ flex: 1, flexShrink: 1 }}>
+                <ChatAudio
+                  currentMessage={{
+                    audio:
+                      'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                  }}
+                  audioProps={{ containerStyle: { marginRight: 12 } }}
+                />
+              </View>
             </View>
           </Card>
           <Label>Additional Information</Label>
