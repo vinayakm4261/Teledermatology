@@ -8,6 +8,7 @@ export const NEW_REGISTER = 'NEW_REGISTER';
 export const LOAD_COMPLETE = 'LOAD_COMPLETE';
 export const AUTH_COMPLETE = 'AUTH_COMPLETE';
 export const AUTH_FAIL = 'AUTH_FAIL';
+export const SIGN_OUT = 'SIGN_OUT';
 
 export const setAuthAction = createPromiseAction('SET_AUTH');
 
@@ -22,3 +23,5 @@ export const loginWithPhoneAction = createPromiseAction('PHONE_LOGIN');
 export const otpAction = createPromiseAction('OTP_CONFIRM');
 
 export const registerUserAction = createPromiseAction('REGISTER_USER');
+
+export const signOutAction = createPromiseAction('SIGN_OUT_USER');

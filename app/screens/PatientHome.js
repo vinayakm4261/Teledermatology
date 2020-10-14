@@ -29,9 +29,14 @@ const HomeScreen = ({
   const header = useMemo(
     () => ({
       title: 'Home',
-      actions: [{ icon: 'account-outline', onPress: () => alert('Account') }],
+      actions: [
+        {
+          icon: 'account-outline',
+          onPress: () => navigation.navigate('Profile'),
+        },
+      ],
     }),
-    [],
+    [navigation],
   );
 
   const renderFooter = useCallback(

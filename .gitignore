@@ -61,3 +61,4 @@ buck-out/
 /ios/Pods/
 
 app/config/API.*
+app/config/agora.*

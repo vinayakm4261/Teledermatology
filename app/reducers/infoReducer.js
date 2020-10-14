@@ -1,3 +1,4 @@
+import { SIGN_OUT } from '../actions/authActions';
 import {
   PATIENT_DATA_LOADED,
   DOCTOR_DATA_LOADED,
@@ -22,6 +23,12 @@ const reducer = (state = initialState, action) => {
         ...state,
         dataLoaded: true,
         appointments: action.payload.appointments,
+      };
+    case SIGN_OUT:
+      return {
+        dataLoaded: false,
+        appointments: [],
+        doctors: [],
       };
     default:
       return state;

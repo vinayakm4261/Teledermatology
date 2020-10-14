@@ -16,4 +16,17 @@ export default StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
   },
+  fab: {
+    position: 'absolute',
+    margin: 60,
+    left: 0,
+    bottom: -70,
+    backgroundColor: '#6C63FF',
+  },
+  submit: {
+    position: 'absolute',
+    right: 16,
+    bottom: 16,
+    backgroundColor: '#6C63FF',
+  },
 });

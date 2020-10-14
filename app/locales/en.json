@@ -25,6 +25,35 @@
     "diseasesPlaceholder": "Type to add",
     "registerButtonText": "Save"
   },
+  "profile": {
+    "title": "Your Account",
+    "subtitle1": "Personal Details",
+    "subtitle2": "Options",
+    "optionChangeLanguage": "Change language",
+    "optionContactUs": "Contact us",
+    "optionShare": "Share",
+    "optionLogOut": "Log Out",
+    "doctorAvailabilityLabel": "Your Availability",
+    "availabilityDatesLabel": "Dates",
+    "availabilityTimeLabel": "Time",
+    "phoneNumberLabel": "Phone Number",
+    "hospital": "K.J. Somaiya Hospital",
+    "address": "Sion East, Mumbai 400022",
+    "call": "Call Now"
+  },
+  "profileEdit": {
+    "formTitle1": "Schedule Availability",
+    "dateLabel": "Select Dates",
+    "timeLabel": "Timings",
+    "to": "to",
+    "formTitle2": "Edit Details",
+    "nameLabel": "Name",
+    "hospitalLabel": "Hospital",
+    "typeLabel": "Department",
+    "emailLabel": "Email (optional)",
+    "patientFormTitle": "Edit Details",
+    "patientFormEmailLabel": "Email"
+  },
   "error": {
     "INVALID_PHONE": "The phone number is invalid.",
     "MISSING_PHONE": "Please enter the phone number.",

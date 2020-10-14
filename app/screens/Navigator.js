@@ -10,8 +10,12 @@ import RegisterScreen from './Register';
 import LoadingScreen from './Loading';
 
 import PatientHomeScreen from './PatientHome';
+import PatientProfileScreen from './PatientProfile';
+import PatientProfileEditScreen from './PatientProfileEdit';
 
 import DoctorHomeScreen from './DoctorHome';
+import DoctorProfile from './DoctorProfile';
+import DoctorProfileEdit from './DoctorProfileEdit';
 
 const Stack = createStackNavigator();
 
@@ -34,10 +38,17 @@ const Navigator = ({
     ) : !isDoctor ? (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={PatientHomeScreen} />
+        <Stack.Screen name="Profile" component={PatientProfileScreen} />
+        <Stack.Screen
+          name="PatientProfileEdit"
+          component={PatientProfileEditScreen}
+        />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
         <Stack.Screen name="Home" component={DoctorHomeScreen} />
+        <Stack.Screen name="DoctorProfile" component={DoctorProfile} />
+        <Stack.Screen name="DoctorProfileEdit" component={DoctorProfileEdit} />
       </Stack.Navigator>
     )}
   </NavigationContainer>

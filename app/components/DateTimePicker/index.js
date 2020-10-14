@@ -3,20 +3,9 @@ import { View } from 'react-native';
 import { useField } from 'formik';
 import { Text, TextInput, TouchableRipple } from 'react-native-paper';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import moment from 'moment';
 
 import Label from '../Typography/Label';
-
-const formatDate = (date) => {
-  const day = date.getDate();
-  const month = date.getMonth() + 1;
-  const year = date.getFullYear();
-
-  return [
-    (day > 9 ? '' : '0') + day,
-    (month > 9 ? '' : '0') + month,
-    year,
-  ].join('/');
-};
 
 export default function ({
   children,
@@ -55,16 +44,20 @@ export default function ({
           paddingHorizontal: 12,
         }}
         onPress={handleOpen}>
-        <Text style={{ fontSize: 16 }}>{formatDate(value)}</Text>
+        <Text style={{ fontSize: 16 }}>
+          {mode === 'date'
+            ? moment(value).format('DD/MM/YYYY')
+            : moment(value).format('hh:mm A')}
+        </Text>
       </TouchableRipple>
     ),
-    [value, handleOpen, disabled],
+    [value, handleOpen, disabled, mode],
   );
 
   return (
     <>
       <View style={style}>
-        <Label>{label}</Label>
+        {!!label && <Label>{label}</Label>}
         <TextInput
           mode="flat"
           dense={true}

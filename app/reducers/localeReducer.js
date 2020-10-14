@@ -1,5 +1,5 @@
 import { SET_LANGUAGE, APP_LOADED } from '../actions/localeActions';
-import { SET_LOADED } from '../actions/authActions';
+import { SET_LOADED, SIGN_OUT } from '../actions/authActions';
 
 const initialState = {
   languageLoaded: false,
@@ -19,6 +19,12 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         appLoaded: true,
+      };
+    case SIGN_OUT:
+      return {
+        languageLoaded: false,
+        language: 'en',
+        appLoaded: false,
       };
     default:
       return state;

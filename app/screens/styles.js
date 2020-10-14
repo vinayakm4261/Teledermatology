@@ -35,4 +35,39 @@ const registerStyles = () => () =>
     },
   });
 
-export { loadingStyles, loginStyles, registerStyles };
+const profileStyles = () => () =>
+  StyleSheet.create({
+    subheading: {
+      marginTop: 8,
+    },
+    listspace: {
+      marginTop: 16,
+    },
+    icons: {
+      alignItems: 'center',
+    },
+    hospitalNameSize: {
+      fontSize: 20,
+    },
+    addressColor: {
+      color: '#696969',
+    },
+    modalContainer: {
+      alignItems: 'center',
+    },
+    image: {
+      flexDirection: 'row',
+    },
+    trustSize: {
+      height: 50,
+      width: 70,
+      margin: 16,
+    },
+    hospitalSize: {
+      height: 50,
+      width: 50,
+      marginVertical: 16,
+    },
+  });
+
+export { loadingStyles, loginStyles, registerStyles, profileStyles };

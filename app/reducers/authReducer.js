@@ -5,7 +5,9 @@ import {
   AUTH_COMPLETE,
   LOAD_COMPLETE,
   SET_LOADED,
+  SIGN_OUT,
 } from '../actions/authActions';
+import { PROFILE_UPDATED } from '../actions/infoActions';
 
 const initialState = {
   authLoaded: false,
@@ -77,6 +79,23 @@ const reducer = (state = initialState, action) => {
         userData: {
           ...state.userData,
           ...action.payload.user,
+        },
+      };
+    case SIGN_OUT:
+      return {
+        ...state,
+        userLoggedIn: false,
+        userRegistered: false,
+        userDataLoaded: false,
+        isDoctor: false,
+        authState: {},
+        userData: {},
+      };
+    case PROFILE_UPDATED:
+      return {
+        ...state,
+        userData: {
+          ...action.payload.userData,
         },
       };
     default:

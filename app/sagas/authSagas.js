@@ -12,6 +12,7 @@ import {
   NEW_REGISTER,
   AUTH_COMPLETE,
   LOAD_COMPLETE,
+  SIGN_OUT,
 } from '../actions/authActions';
 import { APP_LOADED } from '../actions/localeActions';
 
@@ -68,6 +69,8 @@ const authChannelCreator = (authProvider) => {
 
   return listener;
 };
+
+const authSignOut = (authProvider) => authProvider.signOut();
 
 function* authLoadedSaga(action) {
   try {
@@ -297,6 +300,21 @@ function* registerSaga(action) {
   }
 }
 
+function* signOutSaga(action) {
+  try {
+    const auth = yield select((state) => state.authReducer.auth);
+
+    yield call(authSignOut, auth);
+
+    yield put({ type: SIGN_OUT });
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
 export {
   authLoadedSaga,
   appLoadedSaga,
@@ -304,4 +322,5 @@ export {
   loginWithPhoneSaga,
   otpSaga,
   registerSaga,
+  signOutSaga,
 };

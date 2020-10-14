@@ -14,6 +14,10 @@ import Chip from './Chip';
 import Appbar from './Appbar';
 import Loader from './Loader';
 import AppointmentCard from './AppointmentCard';
+import ProfileCard from './ProfileCard';
+import BottomModal from './BottomModal';
+import DateRangePicker from './DateRangePicker';
+import ProfilePicturePicker from './ProfilePicturePicker';
 
 export {
   ScreenWrapper,
@@ -32,4 +36,8 @@ export {
   Appbar,
   Loader,
   AppointmentCard,
+  ProfileCard,
+  BottomModal,
+  DateRangePicker,
+  ProfilePicturePicker,
 };

@@ -41,7 +41,6 @@ const RegisterForm = ({
     onSubmitSuccess,
     onSubmitFail,
   });
-
   return (
     <View style={style}>
       <View style={styles.inputGroup}>
