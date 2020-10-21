@@ -8,6 +8,8 @@ import LoginScreen from './Login';
 import LoginOTPScreen from './LoginOTP';
 import RegisterScreen from './Register';
 import LoadingScreen from './Loading';
+import HomeChat from './HomeChat';
+import ChatScreen from './Chat';
 
 import PatientHomeScreen from './PatientHome';
 import PatientProfileScreen from './PatientProfile';
@@ -48,6 +50,8 @@ const Navigator = ({
         />
         <Stack.Screen name="HomeVideo" component={HomeVideo} />
         <Stack.Screen name="Video" component={Video} />
+        <Stack.Screen name="HomeChat" component={HomeChat} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
@@ -56,6 +60,8 @@ const Navigator = ({
         <Stack.Screen name="DoctorProfileEdit" component={DoctorProfileEdit} />
         <Stack.Screen name="HomeVideo" component={HomeVideo} />
         <Stack.Screen name="Video" component={Video} />
+        <Stack.Screen name="HomeChat" component={HomeChat} />
+        <Stack.Screen name="Chat" component={ChatScreen} />
       </Stack.Navigator>
     )}
   </NavigationContainer>

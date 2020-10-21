@@ -114,6 +114,9 @@ const HomeScreen = ({
             <Button compact onPress={() => navigation.navigate('HomeVideo')}>
               Video call
             </Button>
+            <Button compact onPress={() => navigation.navigate('HomeChat')}>
+              Chat
+            </Button>
           </>
         )}
       </Loader>

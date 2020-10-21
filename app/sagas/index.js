@@ -1,4 +1,4 @@
-import { takeEvery } from 'redux-saga/effects';
+import { takeEvery, takeLatest } from 'redux-saga/effects';
 
 import {
   authLoadedSaga,
@@ -16,6 +16,11 @@ import {
   doctorProfileEditSaga,
   initVideoCallSaga,
 } from './infoSagas';
+import {
+  setDatabaseSaga,
+  initChatWatcher,
+  sendMessageWatcher,
+} from './chatSagas';
 
 export default function* rootSaga() {
   yield takeEvery('SET_AUTH.TRIGGER', authLoadedSaga);
@@ -24,6 +29,9 @@ export default function* rootSaga() {
   yield takeEvery('PHONE_LOGIN.TRIGGER', loginWithPhoneSaga);
   yield takeEvery('OTP_CONFIRM.TRIGGER', otpSaga);
   yield takeEvery('REGISTER_USER.TRIGGER', registerSaga);
+  yield takeEvery('SET_DB.TRIGGER', setDatabaseSaga);
+  yield takeEvery('INIT_CHAT.TRIGGER', initChatWatcher);
+  yield takeEvery('SEND_MESSAGE.TRIGGER', sendMessageWatcher);
   yield takeEvery('SIGN_OUT_USER.TRIGGER', signOutSaga);
   yield takeEvery('LOAD_PATIENT_DATA.TRIGGER', loadPatientDataSaga);
   yield takeEvery('LOAD_DOCTOR_DATA.TRIGGER', loadDoctorDataSaga);

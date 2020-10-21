@@ -18,6 +18,9 @@ import ProfileCard from './ProfileCard';
 import BottomModal from './BottomModal';
 import DateRangePicker from './DateRangePicker';
 import ProfilePicturePicker from './ProfilePicturePicker';
+import ChatVideo from './ChatVideo';
+import ChatAudio from './ChatAudio';
+import MediaPickerDialog from './MediaPickerDialog';
 
 export {
   ScreenWrapper,
@@ -40,4 +43,7 @@ export {
   BottomModal,
   DateRangePicker,
   ProfilePicturePicker,
+  ChatVideo,
+  ChatAudio,
+  MediaPickerDialog,
 };
