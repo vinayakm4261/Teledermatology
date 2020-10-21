@@ -54,14 +54,14 @@ const HomeScreen = ({
         <FAB
           icon="plus"
           onPress={() => {
-            alert('Appointment');
+            navigation.navigate('NewAppointment');
           }}
           label="New Appointment"
           theme={{ colors: { accent: theme.colors.primary } }}
         />
       </View>
     ),
-    [theme.colors.primary],
+    [theme.colors.primary, navigation],
   );
 
   useEffect(() => {
@@ -144,6 +144,9 @@ HomeScreen.propTypes = {
       time: PropTypes.string,
     }),
   ).isRequired,
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = (state) => ({

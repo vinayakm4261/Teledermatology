@@ -9,17 +9,19 @@ export default function ({ children, compact, ...props }) {
       {...props}
       contentStyle={
         compact
-          ? null
+          ? props?.contentStyle
           : {
               height: 48,
+              ...props?.contentStyle,
             }
       }
       labelStyle={
         compact
-          ? null
+          ? props?.labelStyle
           : {
               fontSize: 16,
               ...theme.fonts.medium,
+              ...props?.labelStyle,
             }
       }>
       {children}

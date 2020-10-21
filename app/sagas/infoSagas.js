@@ -11,7 +11,11 @@ import defaultDict from '../helpers/defaultDict';
 import requestAPI from '../helpers/requestAPI';
 import mediaUploader from '../helpers/mediaUploader';
 
-import { PATIENT_DATA_LOADED, PROFILE_UPDATED } from '../actions/infoActions';
+import {
+  PATIENT_DATA_LOADED,
+  PROFILE_UPDATED,
+  NEW_APPOINTMENT_DONE,
+} from '../actions/infoActions';
 
 const retrieveToken = (authProvider) =>
   authProvider.currentUser.getIdToken(true);
@@ -39,7 +43,7 @@ const videoCallPermissions = async () => {
   }
 };
 
-const loadPatientDataSaga = function* (action) {
+function* loadPatientDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -66,9 +70,9 @@ const loadPatientDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
 
-const loadDoctorDataSaga = function* (action) {
+function* loadDoctorDataSaga(action) {
   try {
     const _id = yield select((state) => state.authReducer.userData._id);
 
@@ -95,7 +99,31 @@ const loadDoctorDataSaga = function* (action) {
       type: errorTypes.COMMON.INTERNAL_ERROR,
     });
   }
-};
+}
+
+function* fetchDoctorsSaga(action) {
+  try {
+    const queryText = action.payload;
+
+    const { response, error } = yield call(
+      requestAPI,
+      '/patient/fetchDoctors',
+      'POST',
+      { queryText },
+    );
+
+    if (error) {
+      yield call(rejectPromiseAction, action, error);
+    } else {
+      yield call(resolvePromiseAction, action, response);
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
 
 function* patientProfileEditSaga(action) {
   try {
@@ -250,10 +278,105 @@ function* initVideoCallSaga(action) {
   }
 }
 
+function* newAppointmentSaga(action) {
+  try {
+    const appointmentData = action.payload;
+
+    console.log(appointmentData);
+
+    const sendData = [];
+
+    Object.entries(appointmentData).forEach(([field, data]) => {
+      switch (field) {
+        case 'symptoms':
+          if (data.length > 0) {
+            data.forEach((symptom) =>
+              sendData.push({ name: 'symptoms[]', data: symptom }),
+            );
+          }
+          break;
+        case 'media':
+          if (data.length > 0) {
+            data.forEach(({ type, uri, mime }, index) => {
+              switch (type) {
+                case 'image':
+                  sendData.push({
+                    name: 'photos',
+                    filename: `image-${index}.${mime.split('/')[1]}`,
+                    type: mime,
+                    data: RNFetchBlob.wrap(uri),
+                  });
+                  break;
+                case 'video':
+                  sendData.push({
+                    name: 'videos',
+                    filename: `video-${index}.${mime.split('/')[1]}`,
+                    type: mime,
+                    data: RNFetchBlob.wrap(uri),
+                  });
+                  break;
+                case 'audio':
+                  sendData.push({
+                    name: 'audio',
+                    filename: `audio-${index}.aac`,
+                    type: 'audio/aac',
+                    data: RNFetchBlob.wrap(uri),
+                  });
+              }
+            });
+          }
+          break;
+        default:
+          sendData.push({ name: field, data: String(data) });
+          break;
+      }
+    });
+
+    const { auth, patientID } = yield select((state) => ({
+      auth: state.authReducer.auth,
+      patientID: state.authReducer.userData._id,
+    }));
+
+    sendData.push({ name: 'patientID', data: patientID });
+
+    console.log(sendData);
+
+    const authToken = yield call(retrieveToken, auth);
+
+    const { response, error } = yield call(
+      mediaUploader,
+      'PUT',
+      'https://teledermatology.herokuapp.com/patient/newAppointment',
+      authToken,
+      sendData,
+    );
+
+    console.log('Response', response);
+    console.log('Error', error);
+
+    if (error) {
+      yield call(rejectPromiseAction, action, error);
+    } else {
+      yield put({
+        type: NEW_APPOINTMENT_DONE,
+        payload: { appointment: response.appointment },
+      });
+      yield call(resolvePromiseAction, action, {});
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
 export {
   loadPatientDataSaga,
   loadDoctorDataSaga,
   patientProfileEditSaga,
   doctorProfileEditSaga,
   initVideoCallSaga,
+  fetchDoctorsSaga,
+  newAppointmentSaga,
 };

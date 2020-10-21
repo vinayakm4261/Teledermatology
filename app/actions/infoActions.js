@@ -15,3 +15,7 @@ export const doctorProfileEditAction = createPromiseAction(
   'DOCTOR_PROFILE_EDIT',
 );
 export const initVideoCallAction = createPromiseAction('INIT_VIDEO_CALL');
+export const fetchDoctorsAction = createPromiseAction('FETCH_DOCTORS');
+
+export const NEW_APPOINTMENT_DONE = 'NEW_APPOINTMENT_DONE';
+export const newAppointmentAction = createPromiseAction('NEW_APPOINTMENT');

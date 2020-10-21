@@ -18,6 +18,7 @@ import ChatAudio from '../components/ChatAudio';
 
 import translate from '../locales/translate';
 import requestAPI from '../helpers/requestAPI';
+import { initVideoCallAction } from '../actions/infoActions';
 import { setDatabaseAction, initChatAction } from '../actions/chatActions';
 
 const ViewAppointment = ({
@@ -26,6 +27,7 @@ const ViewAppointment = ({
   isDoctor,
   setDatabase,
   initChat,
+  initVideoCall,
 }) => {
   const theme = useTheme();
   const styles = useMemo(viewAppointmentStyles(), []);
@@ -125,6 +127,17 @@ const ViewAppointment = ({
       .catch((err) => console.log(err));
   }, [_id, generalData, initChat, navigation, setDatabase]);
 
+  const handleVideoCall = useCallback(() => {
+    initVideoCall(_id)
+      .then(({ token }) =>
+        navigation.navigate('Video', {
+          channelName: _id,
+          token,
+        }),
+      )
+      .catch((err) => console.log(err));
+  }, [_id, initVideoCall, navigation]);
+
   const renderFooter = useCallback(
     () => (
       <View
@@ -151,9 +164,7 @@ const ViewAppointment = ({
           />
           <FAB
             icon="video-outline"
-            onPress={() => {
-              alert('Video Call');
-            }}
+            onPress={handleVideoCall}
             label="Video Call"
             theme={{ colors: { accent: theme.colors.primary } }}
             style={{
@@ -174,6 +185,7 @@ const ViewAppointment = ({
       handleChat,
       theme.colors.primary,
       scheduleFixed,
+      handleVideoCall,
       videoCallEnable,
     ],
   );
@@ -372,6 +384,7 @@ const mapStateToProps = (state) => ({
 const mapDispatchToProps = (dispatch) => ({
   setDatabase: (payload) => dispatch(setDatabaseAction(payload)),
   initChat: (payload) => dispatch(initChatAction(payload)),
+  initVideoCall: (channelName) => dispatch(initVideoCallAction(channelName)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ViewAppointment);

@@ -8,7 +8,7 @@ export default ({ children, style, ...props }) => {
     <Chip
       style={{
         margin: 2,
-        borderRadius: 6,
+        borderRadius: theme.roundness,
         backgroundColor: theme.colors.surface,
         ...style,
       }}

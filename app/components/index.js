@@ -10,6 +10,7 @@ import TextInput from './TextInput';
 import Picker from './Picker';
 import DateTimePicker from './DateTimePicker';
 import ChippedTextInput from './ChippedTextInput';
+import MediaUploaderInput from './MediaUploaderInput';
 import Chip from './Chip';
 import Appbar from './Appbar';
 import Loader from './Loader';
@@ -35,6 +36,7 @@ export {
   Picker,
   DateTimePicker,
   ChippedTextInput,
+  MediaUploaderInput,
   Chip,
   Appbar,
   Loader,

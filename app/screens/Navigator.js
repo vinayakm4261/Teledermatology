@@ -14,6 +14,7 @@ import ChatScreen from './Chat';
 import PatientHomeScreen from './PatientHome';
 import PatientProfileScreen from './PatientProfile';
 import PatientProfileEditScreen from './PatientProfileEdit';
+import NewAppointmentScreen from './NewAppointment';
 
 import DoctorHomeScreen from './DoctorHome';
 import DoctorProfile from './DoctorProfile';
@@ -23,6 +24,7 @@ import HomeVideo from './HomeVideo';
 import Video from './Video';
 import ViewAppointment from './ViewAppointment';
 
+const AuthStack = createStackNavigator();
 const Stack = createStackNavigator();
 
 const Navigator = ({
@@ -35,10 +37,10 @@ const Navigator = ({
     {!appLoaded ? (
       <LoadingScreen />
     ) : !userLoggedIn ? (
-      <Stack.Navigator headerMode="none">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="LoginOTP" component={LoginOTPScreen} />
-      </Stack.Navigator>
+      <AuthStack.Navigator headerMode="none">
+        <AuthStack.Screen name="Login" component={LoginScreen} />
+        <AuthStack.Screen name="LoginOTP" component={LoginOTPScreen} />
+      </AuthStack.Navigator>
     ) : !userRegistered ? (
       <RegisterScreen />
     ) : !isDoctor ? (
@@ -54,6 +56,7 @@ const Navigator = ({
         <Stack.Screen name="HomeChat" component={HomeChat} />
         <Stack.Screen name="Chat" component={ChatScreen} />
         <Stack.Screen name="ViewAppointment" component={ViewAppointment} />
+        <Stack.Screen name="NewAppointment" component={NewAppointmentScreen} />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
