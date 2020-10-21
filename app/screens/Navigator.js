@@ -21,6 +21,7 @@ import DoctorProfileEdit from './DoctorProfileEdit';
 
 import HomeVideo from './HomeVideo';
 import Video from './Video';
+import ViewAppointment from './ViewAppointment';
 
 const Stack = createStackNavigator();
 
@@ -52,6 +53,7 @@ const Navigator = ({
         <Stack.Screen name="Video" component={Video} />
         <Stack.Screen name="HomeChat" component={HomeChat} />
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="ViewAppointment" component={ViewAppointment} />
       </Stack.Navigator>
     ) : (
       <Stack.Navigator headerMode="none">
@@ -62,6 +64,7 @@ const Navigator = ({
         <Stack.Screen name="Video" component={Video} />
         <Stack.Screen name="HomeChat" component={HomeChat} />
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="ViewAppointment" component={ViewAppointment} />
       </Stack.Navigator>
     )}
   </NavigationContainer>

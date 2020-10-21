@@ -11,6 +11,7 @@ const AppointmentCard = memo(
     status,
     date,
     time = null,
+    onPress,
   }) => {
     const theme = useTheme();
     const [profilePic, name, subtitle] = useMemo(
@@ -34,7 +35,8 @@ const AppointmentCard = memo(
         style={{
           marginVertical: 4,
         }}
-        theme={{ roundness: 8 }}>
+        theme={{ roundness: 8 }}
+        onPress={onPress}>
         <Card.Title
           left={(props) => (
             <Avatar.Image {...props} source={{ uri: profilePic }} />

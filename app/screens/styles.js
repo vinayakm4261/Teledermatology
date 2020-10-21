@@ -70,4 +70,43 @@ const profileStyles = () => () =>
     },
   });
 
-export { loadingStyles, loginStyles, registerStyles, profileStyles };
+const viewAppointmentStyles = () => () =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    rowLeft: {
+      flex: 1,
+      marginRight: 4,
+    },
+    rowRight: {
+      flex: 1,
+      marginLeft: 4,
+    },
+    card: {
+      marginBottom: 4,
+      backgroundColor: '#eeeeee',
+      elevation: 0,
+    },
+    img: {
+      height: 100,
+      width: 100,
+      margin: 4,
+      borderRadius: 10,
+    },
+    mediaContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      padding: 6,
+    },
+  });
+
+export {
+  loadingStyles,
+  loginStyles,
+  registerStyles,
+  profileStyles,
+  viewAppointmentStyles,
+};

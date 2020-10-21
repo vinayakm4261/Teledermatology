@@ -54,6 +54,9 @@
     "patientFormTitle": "Edit Details",
     "patientFormEmailLabel": "Email"
   },
+  "appointment": {
+    "title": "Appointment"
+  },
   "error": {
     "INVALID_PHONE": "The phone number is invalid.",
     "MISSING_PHONE": "Please enter the phone number.",

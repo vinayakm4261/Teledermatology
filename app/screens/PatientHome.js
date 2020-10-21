@@ -100,7 +100,12 @@ const HomeScreen = ({
                 <Subheading>Upcoming Appointments</Subheading>
                 <View style={{ paddingVertical: 6 }}>
                   {appointments.map(({ _id, ...appointment }) => (
-                    <AppointmentCard {...{ key: _id, _id, ...appointment }} />
+                    <AppointmentCard
+                      {...{ key: _id, _id, ...appointment }}
+                      onPress={() => {
+                        navigation.navigate('ViewAppointment', { _id });
+                      }}
+                    />
                   ))}
                 </View>
               </>
