@@ -1,3 +1,4 @@
+import { PermissionsAndroid } from 'react-native';
 import { put, call, select } from 'redux-saga/effects';
 import {
   resolvePromiseAction,
@@ -14,6 +15,29 @@ import { PATIENT_DATA_LOADED, PROFILE_UPDATED } from '../actions/infoActions';
 
 const retrieveToken = (authProvider) =>
   authProvider.currentUser.getIdToken(true);
+
+const videoCallPermissions = async () => {
+  try {
+    const granted = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    ]);
+
+    if (
+      granted['android.permission.RECORD_AUDIO'] ===
+        PermissionsAndroid.RESULTS.GRANTED &&
+      granted['android.permission.CAMERA'] ===
+        PermissionsAndroid.RESULTS.GRANTED
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
 
 const loadPatientDataSaga = function* (action) {
   try {
@@ -192,9 +216,44 @@ function* doctorProfileEditSaga(action) {
   }
 }
 
+function* initVideoCallSaga(action) {
+  try {
+    const channelName = action.payload;
+
+    const isDoctor = yield select((state) => state.authReducer.isDoctor);
+
+    const isAllowed = yield call(videoCallPermissions);
+
+    if (isAllowed) {
+      const { response, error } = yield call(
+        requestAPI,
+        '/common/agoraToken',
+        'POST',
+        { channelName, uid: isDoctor ? 1 : 0 },
+      );
+
+      if (error) {
+        yield call(rejectPromiseAction, action, error);
+      } else {
+        yield call(resolvePromiseAction, action, { token: response.token });
+      }
+    } else {
+      yield call(rejectPromiseAction, action, {
+        type: errorTypes.VIDEO_CALL.PERMISSIONS_DENIED,
+      });
+    }
+  } catch (err) {
+    console.log(err);
+    yield call(rejectPromiseAction, action, {
+      type: errorTypes.COMMON.INTERNAL_ERROR,
+    });
+  }
+}
+
 export {
   loadPatientDataSaga,
   loadDoctorDataSaga,
   patientProfileEditSaga,
   doctorProfileEditSaga,
+  initVideoCallSaga,
 };
